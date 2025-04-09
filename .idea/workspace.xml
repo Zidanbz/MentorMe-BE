@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="ea24812a-0793-46af-a59d-e8fcb0ac461d" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/functions/public/javascripts/entity/Chat.js" beforeDir="false" afterPath="$PROJECT_DIR$/functions/public/javascripts/entity/Chat.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/functions/public/javascripts/repo/ChatRepo.js" beforeDir="false" afterPath="$PROJECT_DIR$/functions/public/javascripts/repo/ChatRepo.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/functions/public/javascripts/service/chat/ChatService.js" beforeDir="false" afterPath="$PROJECT_DIR$/functions/public/javascripts/service/chat/ChatService.js" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="JavaScript File" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 6
+}</component>
+  <component name="ProjectId" id="2ov4a8LxUpWHS4mlXfgJGbkYmzS" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Node.js.bin/www.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;disable.download.node.interpreter.editor.notification&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;rendi&quot;,
+    &quot;javascript.nodejs.core.library.configured.version&quot;: &quot;20.12.2&quot;,
+    &quot;javascript.nodejs.core.library.typings.version&quot;: &quot;20.12.14&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/media/ahmad/8d7b0091-cc97-411b-8afb-836569705da3/home/asisten/ModulWeb&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_interpreter_path&quot;: &quot;node&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;npm.dev.executor&quot;: &quot;Run&quot;,
+    &quot;npm.start.executor&quot;: &quot;Run&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.fileTypes&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/opt/webstorm/plugins/javascript-plugin/jsLanguageServicesImpl/external&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/functions/routes" />
+      <recent name="$PROJECT_DIR$/functions/public/javascripts/service" />
+      <recent name="$PROJECT_DIR$/functions/public/javascripts/entity" />
+      <recent name="$PROJECT_DIR$/functions" />
+      <recent name="$PROJECT_DIR$" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/functions" />
+      <recent name="$PROJECT_DIR$/bin" />
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/public/javascripts/service/project" />
+      <recent name="$PROJECT_DIR$/public/javascripts/helper" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Node.js.application.js">
+    <configuration name="application.js" type="NodeJSConfigurationType" temporary="true" nameIsGenerated="true" path-to-js-file="$PROJECT_DIR$/functions/node_modules/express/lib/application.js" working-dir="$PROJECT_DIR$/functions/node_modules/express/lib">
+      <method v="2" />
+    </configuration>
+    <configuration name="dev" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
+      <package-json value="$PROJECT_DIR$/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="dev" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
+    <configuration name="start" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
+      <package-json value="$PROJECT_DIR$/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="start" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Node.js.application.js" />
+        <item itemvalue="npm.start" />
+        <item itemvalue="npm.dev" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-e768b9ed790e-JavaScript-WS-243.21565.180" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="ea24812a-0793-46af-a59d-e8fcb0ac461d" name="Changes" comment="" />
+      <created>1731736778674</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1731736778674</updated>
+      <workItem from="1731736782633" duration="4174000" />
+      <workItem from="1732773920305" duration="16183000" />
+      <workItem from="1732797047381" duration="21213000" />
+      <workItem from="1732835967198" duration="31858000" />
+      <workItem from="1732891191468" duration="5890000" />
+      <workItem from="1732923495699" duration="32345000" />
+      <workItem from="1733021310512" duration="39887000" />
+      <workItem from="1733104018752" duration="35681000" />
+      <workItem from="1733181040990" duration="38423000" />
+      <workItem from="1733276657004" duration="33242000" />
+      <workItem from="1733354301358" duration="31682000" />
+      <workItem from="1733440053093" duration="21273000" />
+      <workItem from="1733482063863" duration="566000" />
+      <workItem from="1733536105973" duration="21101000" />
+      <workItem from="1733609251384" duration="103577000" />
+      <workItem from="1733963884879" duration="6420000" />
+      <workItem from="1734496392835" duration="37085000" />
+      <workItem from="1734580599635" duration="463000" />
+      <workItem from="1734581078201" duration="75000" />
+      <workItem from="1734585582907" duration="2729000" />
+      <workItem from="1734697641477" duration="18895000" />
+      <workItem from="1734945688670" duration="3781000" />
+      <workItem from="1735027868306" duration="663000" />
+      <workItem from="1735251322521" duration="1604000" />
+      <workItem from="1735397757561" duration="65565000" />
+      <workItem from="1735548762837" duration="34977000" />
+      <workItem from="1735707325229" duration="6424000" />
+      <workItem from="1735833867569" duration="2447000" />
+      <workItem from="1736492116299" duration="662000" />
+      <workItem from="1736496473934" duration="2835000" />
+      <workItem from="1737618755318" duration="2513000" />
+      <workItem from="1737814930970" duration="5104000" />
+      <workItem from="1737860287834" duration="41416000" />
+      <workItem from="1737943883267" duration="8669000" />
+      <workItem from="1737972825137" duration="20822000" />
+      <workItem from="1738026657510" duration="3622000" />
+      <workItem from="1738036682791" duration="4546000" />
+      <workItem from="1738066650867" duration="764000" />
+      <workItem from="1738233114930" duration="11177000" />
+      <workItem from="1738401967429" duration="3283000" />
+      <workItem from="1738661969836" duration="6582000" />
+      <workItem from="1738741327236" duration="3990000" />
+      <workItem from="1738798244291" duration="6595000" />
+      <workItem from="1739281184852" duration="3354000" />
+      <workItem from="1739377843145" duration="1754000" />
+      <workItem from="1739498368505" duration="1386000" />
+      <workItem from="1739671469962" duration="1366000" />
+      <workItem from="1739798662127" duration="2514000" />
+      <workItem from="1740109904099" duration="190000" />
+      <workItem from="1740270254658" duration="4402000" />
+      <workItem from="1740441512488" duration="1066000" />
+      <workItem from="1740931915262" duration="9623000" />
+      <workItem from="1740972183394" duration="32472000" />
+      <workItem from="1741044444949" duration="13467000" />
+      <workItem from="1741149837399" duration="13189000" />
+      <workItem from="1741306244546" duration="11956000" />
+      <workItem from="1742181373990" duration="3321000" />
+      <workItem from="1742921282782" duration="1259000" />
+      <workItem from="1743076575663" duration="854000" />
+      <workItem from="1743599914772" duration="3478000" />
+      <workItem from="1743824596605" duration="3778000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>
