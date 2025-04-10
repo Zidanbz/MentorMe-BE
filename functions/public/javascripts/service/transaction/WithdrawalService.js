@@ -104,9 +104,10 @@ class WithdrawalService{
         try {
             const user = await getUserByUid(req);
             const money = req.body.money;
+            const bank = req.body.bank;
             const accountNumber = req.body.accountNumber;
             const moneys = await this.changeMoneyMe(money, req);
-            const object = new Withdrawal(null, accountNumber, moneys, money, user.email);
+            const object = new Withdrawal(null, accountNumber, moneys, money, user.email, bank);
             this.objectRepo.save(object);
             return new APIResponse(
                 HttpStatus.OK.code,
