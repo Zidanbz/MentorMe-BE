@@ -1,4 +1,4 @@
-const {createNewProject, getProjectsByMentor} = require("../../repo/ProjectRepo");
+const {createNewProject} = require("../../repo/ProjectRepo");
 const Project = require("../../entity/Project");
 const {ID} = require("../../util/UUID");
 const {getUserByUid} = require("../../util/AutenticationUtil")
@@ -97,7 +97,7 @@ async function mappingProject(fields, files, req) {
 //     return results;
 // }
 
-async function transformData(listProject, listLearning) {
+async function transformData(listProject) {
     const results = [];
     for (const item of listProject) {
         const filePicture = await getFileMetadata(item.picture);
@@ -126,12 +126,12 @@ async function createProject(req) {
 
         await createNewProject(mapProject);
         // const user = await getUserByUid(req);
-        const temp = await getProjectsByMentor(mapProject.mentor);
-        const data = await transformData(temp);
+        // const temp = await getProjectsByMentor(mapProject.mentor);
+        const data = await transformData([mapProject]);
         return new APIResponse(
             HttpStatus.CREATED.code,
             null,
-            data,
+            data[0],
             HttpStatus.CREATED.message,
         );
     }catch (error){

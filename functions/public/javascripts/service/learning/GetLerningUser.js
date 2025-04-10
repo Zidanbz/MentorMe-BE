@@ -31,7 +31,6 @@ async function mappingResponse(req){
                 "progress": value.progress,
                 "project": {
                    materialName: project.materialName,
-                   
                     picture: file,
                     student: count,
                 },
