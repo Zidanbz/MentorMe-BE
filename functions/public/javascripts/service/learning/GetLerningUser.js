@@ -26,7 +26,7 @@ async function mappingResponse(req){
             const file = await getFileMetadata(project.picture);
             const count = await countStudentInLearn(project.ID);
             data.learning.push({
-                // "ID": value.ID,
+                "ID": value.ID,
                "IDProject": project.ID,
                 "progress": value.progress,
                 "project": {
