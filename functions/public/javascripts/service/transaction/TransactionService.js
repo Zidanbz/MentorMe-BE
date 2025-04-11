@@ -79,10 +79,17 @@ async function newTransaction(req){
                     },
                 },
             );
+
+        // Tambahkan transactionID ke dalam response data
+        const responseData = {
+            ...response.data,
+            transactionID: transactional.ID,
+        };
+
         return new APIResponse(
             HttpStatus.CREATED.code,
             null,
-            response.data,
+            responseData,
             HttpStatus.CREATED.message,
         )
     }catch (error) {

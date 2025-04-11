@@ -31,6 +31,8 @@ async function mappingResponse(req) {
                     trainActivity: {
                         meeting: item.Meeting,
                         materialNameSyllabus: item.MaterialNameSyllabus,
+                        task: item.Task,
+                        critism: item.Critism,
                         status: activities[0].status,
                         IDActivity: activities[0].ID,
                     }});
