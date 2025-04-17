@@ -7,11 +7,18 @@
  * See a full list of supported triggers at https://firebase.google.com/docs/functions
  */
 
-const {onRequest} = require("firebase-functions/v2/https");
+// const {onRequest} = require("firebase-functions/v2/https");
 
+// const server = require("./app");
+
+// exports.widgets = onRequest(server);
+
+
+const { onRequest } = require("firebase-functions/v2/https");
 const server = require("./app");
 
-exports.widgets = onRequest(server);
+exports.widgets22 = onRequest({ region: "asia-southeast2" }, server);
+
 // exports.widgets = functions.onRequest((req, res) => {
 //     server(req, res);
 // });
