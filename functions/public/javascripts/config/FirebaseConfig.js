@@ -8,6 +8,9 @@ const configFireApp = firebaseAdmin.initializeApp({
     storageBucket: 'gs://mentorme-aaa37.firebasestorage.app',
     });
 
+// Menambahkan Firebase Messaging
+const messaging = configFireApp.messaging();
+
 const db = configFireApp.firestore();
 const authentications = configFireApp.auth();
 const storageBucket = configFireApp.storage().bucket();
@@ -19,4 +22,5 @@ module.exports = {
     authentications,
     storageBucket,
     storage,
+    messaging,
 };

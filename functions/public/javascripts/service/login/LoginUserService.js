@@ -6,6 +6,7 @@ const {getAllCategory} = require("../../repo/CategoryRepo");
 const {getAllLearningPath} = require("../../repo/LearningPathRepo");
 const {getFileMetadata} = require("../../config/BusboyConfig");
 const {getMentorByEmails} = require("../../repo/MentorRepo");
+const { db } = require("../../config/FirebaseConfig");
 
 async function comparePassword(inputPassword, hashedPassword){
     const isValid = await bcrypt.compare(inputPassword, hashedPassword);
@@ -77,12 +78,32 @@ async function mappingToDataResponse(users){
     }
 }
 
-async function loginUserService(user){
+async function loginUserService(user, fcmToken){
     try {
         await checkMentorPending(user.email);
         const users = await authenticationUserByEmail(user.email);
         await cekPassword(user);
         const data = await mappingToDataResponse(users);
+
+if (fcmToken) {
+    const userDb = await getUsersByEmail(user.email);
+    if (userDb.length > 0) {
+        const docRef = await db.collection("user")
+            .where("email", "==", user.email)
+            .limit(1)
+            .get();
+
+        if (!docRef.empty) {
+            const docId = docRef.docs[0].id;
+            await db.collection("user").doc(docId).update({
+                fcmToken: fcmToken,
+            });
+        }
+    }
+}
+        // Pastikan fcmToken ditambahkan dalam data response
+        data.fcmToken = fcmToken;
+
         return new APIResponse(
             HttpStatus.OK.code,
             null,

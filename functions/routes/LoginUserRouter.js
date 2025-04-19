@@ -6,7 +6,10 @@ const {loginUserService} = require("../public/javascripts/service/login/LoginUse
 router.post('/api/login/user',
     async function(req,
                    res, next) {
-    res.send(await loginUserService(req.body));
+    const { email, password, fcmToken } = req.body;
+
+    const response = await loginUserService({ email, password }, fcmToken);
+    res.status(response.code).json(response);
 });
 
 module.exports = router;

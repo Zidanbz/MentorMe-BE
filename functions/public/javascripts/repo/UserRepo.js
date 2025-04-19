@@ -11,6 +11,18 @@ async function findEmailIsAlready(email) {
     return true;
 }
 
+// Fungsi untuk mendapatkan FCM token berdasarkan ID pengguna
+async function getFCMTokenByUserId(userId) {
+    try {
+        const userDoc = await db.collection("user").doc(userId).get();
+        if (!userDoc.exists) {
+            throw new Error("User tidak ditemukan");
+        }
+        return userDoc.data().fcmToken || null;
+    }catch (error) {
+        throw new Error(`Gagal ambil FCM token: ${error.message}`);
+    }
+}
 async function getUsersByEmail(email){
     const docRef = await db.collection("user")
         .where('email', '==', email)
@@ -104,4 +116,5 @@ module.exports = {
     setPictureUser,
     editUser,
     editUserMentor,
+    getFCMTokenByUserId,
 };
