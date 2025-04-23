@@ -3,7 +3,7 @@ const {getProjectById} = require("../../repo/ProjectRepo");
 const APIResponse = require("../../DTO/response/APIResponse");
 const HttpStatus = require("../../util/HttpStatus");
 const {getUserByUid} = require("../../util/AutenticationUtil");
-const {getFileMetadata} = require("../../config/BusboyConfig");
+const { generatePublicUrl} = require("../../config/BusboyConfig");
 
 async function countStudentInLearn(ID){
     try {
@@ -23,7 +23,7 @@ async function mappingResponse(req){
         }
         for (const value of learning){
             const project = await getProjectById(value.project);
-            const file = await getFileMetadata(project.picture);
+            const filePicture = generatePublicUrl(project.picture);
             const count = await countStudentInLearn(project.ID);
             data.learning.push({
                 "ID": value.ID,
@@ -31,7 +31,7 @@ async function mappingResponse(req){
                 "progress": value.progress,
                 "project": {
                    materialName: project.materialName,
-                    picture: file,
+                    picture: filePicture,
                     student: count,
                 },
             });

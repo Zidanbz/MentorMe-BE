@@ -27,7 +27,7 @@ async function notifCreated(data, targetUserId) {
         // Kirim ke FCM
         await messaging.send(payload);
         console.log(`✅ Notification sent to user ${targetUserId}`);
-    } catch (error) {
+    }catch (error) {
         throw new Error("notifCreated error: " + error.message);
     }
 }

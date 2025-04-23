@@ -76,12 +76,13 @@ async function checkStatus(req){
 async function notificationService(req){
     try {
         await checkStatus(req);
-        // return new APIResponse(
-        //     HttpStatus.CREATED.code,
-        //     null,
-        //     "null",
-        //     HttpStatus.CREATED.message,
-        // )
+        console.log("Webhook Body dari Midtrans:", req.body);
+        return new APIResponse(
+            HttpStatus.CREATED.code,
+            null,
+            "null",
+            HttpStatus.CREATED.message,
+        )
     }catch (error){
         return new APIResponse(
             HttpStatus.BAD_REQUEST.code,

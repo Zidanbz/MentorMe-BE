@@ -2,13 +2,13 @@ const {getMentorPending} = require("../../repo/MentorRepo");
 const APIResponse = require("../../DTO/response/APIResponse");
 const HttpStatus = require("../../util/HttpStatus");
 const {getUsersByEmail} = require("../../repo/UserRepo");
-const {getFileMetadata} = require("../../config/BusboyConfig");
+const {generatePublicUrl} = require("../../config/BusboyConfig");
 
 async function mappingResponse(user, mentor) {
     try {
-        const fileCV = await getFileMetadata(mentor.cv);
-        const fileKtp = await getFileMetadata(mentor.ktp);
-        const filePicture = await getFileMetadata(user[0].picture);
+        const fileCV = generatePublicUrl(mentor.cv);
+        const fileKtp = generatePublicUrl(mentor.ktp);
+        const filePicture = generatePublicUrl(user[0].picture);
 
         return {
             ID: mentor.ID,

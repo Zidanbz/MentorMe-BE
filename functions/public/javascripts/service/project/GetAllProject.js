@@ -1,24 +1,28 @@
 const {getAllProject} = require("../../repo/ProjectRepo");
 const APIResponse = require("../../DTO/response/APIResponse");
 const HttpStatus = require("../../util/HttpStatus");
-const {getFileMetadata} = require("../../config/BusboyConfig");
 const {getUsersByEmail} = require("../../repo/UserRepo");
+
+const { generatePublicUrl } = require("../../config/BusboyConfig"); // pastikan fungsi ini tersedia
 
 async function transformData(listProject, listLearning) {
     const results = [];
     for (const item of listProject) {
-        if (item.status !== 'ACCEPTED')continue; // hanya terima status "ACCEPTED"
-        const filePicture = await getFileMetadata(item.picture);
+        if (item.status !== 'ACCEPTED')continue;
+
+        // Ganti dari base64 ke URL
+        const filePicture = generatePublicUrl(item.picture);
+
         const mentor = await getUsersByEmail(item.mentor);
-            results.push({
-                ID: item.ID,
-                materialName: item.materialName,
-                student: 0,
-                price: item.price,
-                mentor: mentor[0].fullName,
-                picture: filePicture,
-                status: item.status ? item.status : "ACCEPTED",
-            });
+        results.push({
+            ID: item.ID,
+            materialName: item.materialName,
+            student: 0,
+            price: item.price,
+            mentor: mentor[0].fullName,
+            picture: filePicture,
+            status: item.status || "ACCEPTED",
+        });
     }
     return results;
 }

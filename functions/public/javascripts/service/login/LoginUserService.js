@@ -4,7 +4,7 @@ const HttpStatus = require("../../util/HttpStatus");
 const bcrypt = require('bcrypt');
 const {getAllCategory} = require("../../repo/CategoryRepo");
 const {getAllLearningPath} = require("../../repo/LearningPathRepo");
-const {getFileMetadata} = require("../../config/BusboyConfig");
+const {generatePublicUrl} = require("../../config/BusboyConfig");
 const {getMentorByEmails} = require("../../repo/MentorRepo");
 const { db } = require("../../config/FirebaseConfig");
 
@@ -45,20 +45,15 @@ async function cekPassword(req){
 async function mappingLearningPath(){
     try {
         const allLearningPaths = await getAllLearningPath();
-        const mapLearningPaths = async() => {
-            const results = [];
-            for (const element of allLearningPaths) {
-                const file = await getFileMetadata(element.picture);
-                results.push({
-                    ID: element.ID,
-                    categoryId: element.categoryId,
-                    name: element.name,
-                    picture: file,
-                });
-            }
-            return results;
+        const mapLearningPaths = () => {
+            return allLearningPaths.map(element => ({
+                ID: element.ID,
+                categoryId: element.categoryId,
+                name: element.name,
+                picture: generatePublicUrl(element.picture), // 👈 Ubah base64 ke URL
+            }));
         };
-        const data = await mapLearningPaths();
+        const data = mapLearningPaths();
         return data;
     }catch (error) {
         throw new Error(error);

@@ -11,7 +11,7 @@ async function getAllNotifService(userId) {
             data,
             HttpStatus.OK.message,
         );
-    } catch (err) {
+    }catch (err) {
         return new APIResponse(
             HttpStatus.BAD_REQUEST.code,
             err.message,

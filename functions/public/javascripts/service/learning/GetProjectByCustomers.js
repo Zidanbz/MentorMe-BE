@@ -5,7 +5,7 @@ const {getUsersByEmail} = require("../../repo/UserRepo");
 const {getProjectsByMentor} = require("../../repo/ProjectRepo");
 const {getUserByUid} = require("../../util/AutenticationUtil");
 const {getActivitiesByLearning} = require("../../repo/ActivityRepo");
-const {getFileMetadata} = require("../../config/BusboyConfig");
+const { generatePublicUrl} = require("../../config/BusboyConfig");
 
 class GetProjectByCustomers{
     async project(user){
@@ -57,7 +57,7 @@ class GetProjectByCustomers{
             const projects = await this.project(user);
             const data = [];
             for (const value of projects){
-                const file = await getFileMetadata(value.picture);
+                const file = generatePublicUrl(value.picture);
                 const learnings = await this.extractLearningByProject(value.ID);
                 for (const valueLearning of learnings){
                     const activities = await this.extractActivitiesByLearning(valueLearning.ID);
@@ -130,7 +130,7 @@ class GetProjectByCustomers{
             const projects = await this.project(user);
             const data = [];
             for (const value of projects){
-                const file = await getFileMetadata(value.picture);
+                const file = generatePublicUrl(value.picture);
                 const learnings = await this.extractLearningCompleteByProject(value.ID);
                     for (const valueLearning of learnings){
                         const users = await this.extractUser(valueLearning.email);

@@ -35,7 +35,8 @@ async function parseMultipartForm(req) {
                 writeStream.on('close', () => {
                     uploadToStorage(localFilePath, storagePath)
                         .then(fileName => {
-                            uploads[fieldname] = path.basename(fileName); // Only store the file name
+                            // uploads[fieldname] = path.basename(fileName); // Only store the file name
+                            uploads[fieldname] = fileName; // fileName sekarang adalah URL dari hasil uploadToStorage
                             fs.unlinkSync(localFilePath); // Remove the local file
                             resolve();
                         })
@@ -62,6 +63,9 @@ async function parseMultipartForm(req) {
     });
 }
 
+function generatePublicUrl(fileName) {
+    return `https://storage.googleapis.com/${storageBucket.name}/uploads/${fileName}`;
+}
 /**
  * Uploads a file to Firebase Storage and returns its name/path.
  *
@@ -69,15 +73,28 @@ async function parseMultipartForm(req) {
  * @param {string} destination Path in Firebase Storage.
  * @returns {Promise<string>} Path of the uploaded file in Firebase Storage.
  */
+// async function uploadToStorage(localFilePath, destination) {
+//         await storageBucket.upload(localFilePath, {
+//             destination,
+//             metadata: {
+//                 cacheControl: 'public, max-age=31536000',
+//             },
+//         });
+//         return destination;
+// }
+
 async function uploadToStorage(localFilePath, destination) {
-        await storageBucket.upload(localFilePath, {
-            destination,
-            metadata: {
-                cacheControl: 'public, max-age=31536000',
-            },
-        });
-        return destination;
+    await storageBucket.upload(localFilePath, {
+        destination,
+        metadata: {
+            cacheControl: 'public, max-age=31536000',
+        },
+    });
+
+    const publicUrl = `https://storage.googleapis.com/${storageBucket.name}/${destination}`;
+    return publicUrl;
 }
+
 
 /**
  * Retrieves the name of a file from its Firebase Storage path.
@@ -176,5 +193,6 @@ module.exports = {
     getFileAsBuffer,
     extractMultipartForm,
     isFileNameAvailable,
+    generatePublicUrl,
 };
 

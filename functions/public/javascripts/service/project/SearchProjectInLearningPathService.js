@@ -3,14 +3,14 @@ const HttpStatus = require("../../util/HttpStatus")
 const {search} = require("../../helper/SearchConfig");
 const {getProjectByLearningPath} = require("../../repo/ProjectRepo");
 const {getUsersByEmail} = require("../../repo/UserRepo");
-const {getFileMetadata} = require("../../config/BusboyConfig");
+const { generatePublicUrl} = require("../../config/BusboyConfig");
 
 async function mappingResponse(id){
     const data = [];
     try {
         const list = await getProjectByLearningPath(id);
         for (const item of list) {
-            const file = await getFileMetadata(item.picture);
+            const file = await generatePublicUrl(item.picture);
             const user = await getUsersByEmail(item.mentor);
             const fullName = user.map(users => users.fullName)[0];
             data.push({

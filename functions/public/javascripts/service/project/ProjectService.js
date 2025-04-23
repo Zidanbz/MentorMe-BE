@@ -3,13 +3,13 @@ const HttpStatus = require("../../util/HttpStatus");
 const {getUsersByEmail} = require("../../repo/UserRepo");
 const {getProjectsByMentor, getProjectReject, getProjectPending} = require("../../repo/ProjectRepo");
 const {getUserByUid} = require("../../util/AutenticationUtil");
-const {getFileMetadata} = require("../../config/BusboyConfig");
+const { generatePublicUrl} = require("../../config/BusboyConfig");
 
 class ProjectService{
     async transformData(listProject, listLearning){
         const results = [];
         for (const item of listProject) {
-            const filePicture = await getFileMetadata(item.picture);
+            const filePicture = generatePublicUrl(item.picture);
             for (const mentor of await getUsersByEmail(item.mentor)) {
                 results.push({
                     ID: item.ID,
@@ -109,14 +109,14 @@ class ProjectService{
             const list = await getProjectPending();
             for (const item of list) {
                 if (item.mentor == mentor) {
-                    const file = await getFileMetadata(item.picture);
+                    const filePicture = generatePublicUrl(item.picture);
                     const user = await getUsersByEmail(item.mentor);
                     const fullName = user.map(users => users.fullName)[0];
                     data.push({
                         ID: item.ID,
                         materialName: item.materialName,
                         fullName: fullName,
-                        picture: file,
+                        picture: filePicture,
                         student: 0,
                         price: item.price,
                         status: item.status,

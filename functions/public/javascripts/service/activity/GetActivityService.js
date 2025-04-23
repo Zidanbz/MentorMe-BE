@@ -6,7 +6,7 @@ const {getUserByUid} = require("../../util/AutenticationUtil");
 const {getProjectById} = require("../../repo/ProjectRepo");
 const {getUsersByEmail} = require("../../repo/UserRepo");
 const {getSyllabusByProject} = require("../../repo/SyllabusRepo");
-const {getFileMetadata} = require("../../config/BusboyConfig");
+const {generatePublicUrl} = require("../../config/BusboyConfig");
 
 async function mappingResponse(req) {
     try {
@@ -16,7 +16,7 @@ async function mappingResponse(req) {
         const project = await getProjectById(learning[0].project);
         const syllabus = await getSyllabusByProject(project.ID);
         const mentor = await getUsersByEmail(project.mentor);
-        const filePicture = await getFileMetadata(mentor[0].picture);
+        const filePicture = generatePublicUrl(mentor[0].picture);
         const data = {
             fullName: user[0].fullName || null,
             materialName: project.materialName || null,

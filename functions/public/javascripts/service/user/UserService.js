@@ -1,6 +1,6 @@
 const { getMentorRejected } = require("../../repo/MentorRepo");
 const { getUsersByEmail } = require("../../repo/UserRepo");
-const { getFileMetadata } = require("../../config/BusboyConfig");
+const { generatePublicUrl } = require("../../config/BusboyConfig");
 const { getFCMTokenByUserId } = require("../../repo/UserRepo");
 const { messaging } = require("../../config/FirebaseConfig");
 const APIResponse = require("../../DTO/response/APIResponse");
@@ -10,9 +10,9 @@ class UserService {
     // Mapping file dan user ke response object
     async mappingResponse(user, mentor) {
         try {
-            const fileCV = await getFileMetadata(mentor.cv);
-            const fileKtp = await getFileMetadata(mentor.ktp);
-            const filePicture = await getFileMetadata(user[0].picture);
+            const fileCV = generatePublicUrl(mentor.cv);
+            const fileKtp = generatePublicUrl(mentor.ktp);
+            const filePicture = generatePublicUrl(user[0].picture);
 
             return {
                 ID: mentor.ID,
