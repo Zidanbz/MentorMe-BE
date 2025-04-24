@@ -1,4 +1,4 @@
-const {db, messaging} = require("../config/FirebaseConfig");
+const {db} = require("../config/FirebaseConfig");
 
 async function notifCreated(data) {
     try {
