@@ -10,7 +10,7 @@ async function mappingResponse(id){
     try {
         const list = await getProjectByLearningPath(id);
         for (const item of list) {
-            const file = await generatePublicUrl(item.picture);
+            const file = generatePublicUrl(item.picture);
             const user = await getUsersByEmail(item.mentor);
             const fullName = user.map(users => users.fullName)[0];
             data.push({
@@ -20,6 +20,7 @@ async function mappingResponse(id){
                 picture: file,
                 student: 0,
                 price: item.price,
+                learningMethod: item.learningMethod,
             })
         }
         return data

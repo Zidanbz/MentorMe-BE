@@ -27,6 +27,7 @@ async function mappingProject(fields, files, req) {
         objectProject.setPicture(files.picture);
         objectProject.setLearningPath(learningPath.ID);
         objectProject.setMentor(email.email);
+        objectProject.setLearningMethod(fields.learningMethod);
 
         return objectProject;
     }catch (error) {
@@ -44,6 +45,7 @@ async function transformData(listProject, listLearning) {
             student: 0,
             price: item.price,
             picture: filePicture,
+            learningMethod: item.learningMethod,
         });
     }
     return results;

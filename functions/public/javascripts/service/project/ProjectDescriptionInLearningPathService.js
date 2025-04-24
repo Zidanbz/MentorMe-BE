@@ -23,8 +23,8 @@ async function getDescriptionInLearningPath(req){
             "fullName": dataMentor.fullName,
             "about": dataMentor.about,
             "linkVideo": dataProject.linkVideo,
-            "student": 50,
             "price": dataProject.price,
+            "learningMethod": dataProject.learningMethod,
         }
         return new APIResponse(
             HttpStatus.OK.message,

@@ -6,25 +6,25 @@ const {getUsersByEmail} = require("../../repo/UserRepo");
 const { generatePublicUrl } = require("../../config/BusboyConfig"); // pastikan fungsi ini tersedia
 
 async function transformData(listProject, listLearning) {
-    const results = [];
-    for (const item of listProject) {
-        if (item.status !== 'ACCEPTED')continue;
+  const results = [];
+  for (const item of listProject) {
+    if (item.status !== 'ACCEPTED')continue;
 
-        // Ganti dari base64 ke URL
-        const filePicture = generatePublicUrl(item.picture);
+    const filePicture = item.picture.startsWith('http') ? item.picture : generatePublicUrl(item.picture);
 
-        const mentor = await getUsersByEmail(item.mentor);
-        results.push({
-            ID: item.ID,
-            materialName: item.materialName,
-            student: 0,
-            price: item.price,
-            mentor: mentor[0].fullName,
-            picture: filePicture,
-            status: item.status || "ACCEPTED",
-        });
-    }
-    return results;
+    const mentor = await getUsersByEmail(item.mentor);
+    results.push({
+      ID: item.ID,
+      materialName: item.materialName,
+      student: 0,
+      price: item.price,
+      mentor: mentor[0].fullName,
+      picture: filePicture,
+      learningMethod: item.learningMethod,
+      status: item.status || "ACCEPTED",
+    });
+  }
+  return results;
 }
 
 /**

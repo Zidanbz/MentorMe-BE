@@ -25,6 +25,7 @@ async function mappingResponse(){
                 price: item.price,
                 linkVideo: item.linkVideo,
                 status: item.status,
+                learningMethod: item.learningMethod,
             })
         }
         return data

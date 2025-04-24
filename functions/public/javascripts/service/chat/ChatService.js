@@ -1,65 +1,23 @@
-// const Message = require('../../entity/Message');
-// const uuidv4 = require('uuid');
-// const { db, storage } = require('../../config/FirebaseConfig');
-//
-// async function saveMessage(consultationId, senderId, content, file) {
-//     try {
-//         let fileUrl = null;
-//         if (file) {
-//             const fileName = `chats/${consultationId}/${uuidv4()}-${file.originalname}`;
-//             const fileRef = storage.file(fileName);
-//             await fileRef.save(file.buffer);
-//             fileUrl = await fileRef.getSignedUrl({ action: 'read', expires: '03-01-2500' });
-//         }
-//
-//         const message = new Message(
-//             uuidv4(),
-//             consultationId,
-//             senderId,
-//             content,
-//             fileUrl,
-//         );
-//
-//         await db.collection('messages').add(message.toObject());
-//         return message.toObject();
-//     }catch (error) {
-//         throw new Error(`Failed to save message: ${error.message}`);
-//     }
-// }
-// async function getConsultationMessages(consultationId) {
-//     try {
-//         const messages = await db.collection('messages')
-//             .where('consultationId', '==', consultationId)
-//             .orderBy('timestamp', 'asc')
-//             .get();
-//         return messages.docs.map(doc => doc.data());
-//     }catch (error) {
-//         throw new Error(`Failed to get messages: ${error.message}`);
-//     }
-// }
-//
-// module.exports = {
-//     saveMessage,
-//     getConsultationMessages,
-// };
 const ChatRepo = require("../../repo/ChatRepo");
 const APIResponse = require("../../DTO/response/APIResponse");
 const HttpStatus = require("../../util/HttpStatus");
-const {getUserByUid} = require("../../util/AutenticationUtil");
+const { getUserByUid } = require("../../util/AutenticationUtil");
 const Chat = require("../../entity/Chat");
-const {getUsersByEmail} = require("../../repo/UserRepo");
+const { getUsersByEmail } = require("../../repo/UserRepo");
+const { messaging } = require("../../config/FirebaseConfig");
 
-class ChatService{
+class ChatService {
     chatRepo;
 
-    constructor(){
+    constructor() {
         this.chatRepo = new ChatRepo();
     }
 
-    async mappingChat(req){
+    // Fungsi untuk mapping chat (mencocokkan data)
+    async mappingChat(req) {
         try {
             const user = await getUserByUid(req);
-            const email = await req.body.email;
+            const email = req.body.email; // Ambil email penerima dari request body
             const customer = await getUsersByEmail(user.email);
             const mentor = await getUsersByEmail(email);
             return new Chat(email, user.email, customer[0].fullName, mentor[0].fullName);
@@ -68,19 +26,59 @@ class ChatService{
         }
     }
 
-    async saveChat(req){
+    // Fungsi untuk menyimpan chat
+    async saveChat(req) {
         try {
-            const object = await this.mappingChat(req);
+            const object = await this.mappingChat(req); // Mapping chat object
             console.log(object);
-            await this.chatRepo.saveChat(object);
-            const data = object.idRoom;
+
+            // Cek apakah chat room sudah ada antara emailCustomer dan emailMentor
+            const existingChat = await this.chatRepo.getChatByUsers(object.emailCustomer, object.emailMentor);
+
+            let chatRoomId;
+            if (existingChat) {
+                // Jika sudah ada, gunakan chat room yang lama
+                chatRoomId = existingChat.idRoom;
+            }else {
+                // Jika belum ada, simpan chat baru dan buat ID chat baru
+                await this.chatRepo.saveChat(object);
+                chatRoomId = object.idRoom;
+            }
+
+            // Ambil token FCM penerima
+            const receiver = await getUsersByEmail(object.emailMentor);
+            const fcmToken = receiver[0].fcmToken; // pastikan field ini ada di data user
+
+            if (fcmToken) {
+                const message = {
+                    notification: {
+                        title: `${object.senderName} mengirim pesan`,
+                        body: 'Buka chat untuk membaca pesan baru',
+                    },
+                    token: fcmToken,
+                    data: {
+                        // Optional: bisa digunakan untuk navigate ke halaman chat di client
+                        chatRoomId: String(chatRoomId),
+                        senderEmail: String(object.senderEmail),
+                    }};
+
+                // Kirim notifikasi menggunakan Firebase Cloud Messaging
+                messaging.send(message)
+                    .then(response => {
+                        console.log('FCM Message sent:', response);
+                    })
+                    .catch(error => {
+                        console.error('FCM Error:', error);
+                    });
+            }
+
             return new APIResponse(
                 HttpStatus.OK.code,
                 null,
-                data,
+                chatRoomId,
                 HttpStatus.OK.message,
-            )
-        }catch (error){
+            );
+        }catch (error) {
             return new APIResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR.code,
                 error.message,
@@ -90,7 +88,8 @@ class ChatService{
         }
     }
 
-    async getChatCustomer(req){
+    // Fungsi untuk mendapatkan chat customer
+    async getChatCustomer(req) {
         try {
             const user = await getUserByUid(req);
             const data = await this.chatRepo.getChat(user.email);
@@ -99,8 +98,8 @@ class ChatService{
                 null,
                 data,
                 HttpStatus.OK.message,
-            )
-        }catch (error){
+            );
+        }catch (error) {
             return new APIResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR.code,
                 error.message,

@@ -19,6 +19,7 @@ class ProjectService{
                     picture: filePicture,
                     mentor: mentor.fullName,
                     status: item.status,
+                    learningMethod: item.learningMethod,
                 });
             }
         }
@@ -38,6 +39,7 @@ class ProjectService{
                     "picture": item.picture,
                     "mentor": item.mentor,
                     "status": item.status,
+                    "learningMethod": item.learningMethod,
                 }));
         }catch (err) {
             throw new Error(err.message);
@@ -76,6 +78,7 @@ class ProjectService{
                     "picture": item.picture,
                     "mentor": item.mentor,
                     "status": item.status,
+                    "learningMethod": item.learningMethod,
                 }));
         }catch (err) {
             throw new Error(err.message);
@@ -120,6 +123,7 @@ class ProjectService{
                         student: 0,
                         price: item.price,
                         status: item.status,
+                        learningMethod: item.learningMethod,
                     })
                 }
             }
@@ -164,6 +168,7 @@ class ProjectService{
                     "picture": item.picture,
                     "mentor": item.mentor,
                     "status": item.status,
+                    "learningMethod": item.learningMethod,
                 }));
         }catch (err) {
             throw new Error(err.message);

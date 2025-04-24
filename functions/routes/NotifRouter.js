@@ -8,11 +8,6 @@ const {authorizeRole} = require("../public/javascripts/config/SecurityConfig");
 // Membuat notifikasi baru
 router.post("/api/notif/new", authorizeRole("ADMIN"), async function(req, res) {
     try {
-        // Mendapatkan role dari request body
-        const { role } = req.body;
-        if (!role) {
-            return res.status(400).send({ message: "Role is required" });
-        }
         // Kirim notifikasi berdasarkan role
         const result = await createNotif(req); // Tidak perlu targetUserId lagi jika createNotif menggunakan role
         res.status(result.code).send(result);

@@ -3,7 +3,7 @@ const serviceAccount = require('../../../mentorme-aaa37-firebase-adminsdk-u4jwm-
 
 const configFireApp = firebaseAdmin.initializeApp({
         credential: firebaseAdmin.credential.cert(serviceAccount),
-    storageBucket: 'gs://mentorme-aaa37.firebasestorage.app',
+    storageBucket: 'mentorme-aaa37.appspot.com',
     });
 
 // Menambahkan Firebase Messaging

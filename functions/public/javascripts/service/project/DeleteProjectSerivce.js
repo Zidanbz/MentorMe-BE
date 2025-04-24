@@ -14,6 +14,7 @@ async function transformData(listProject, listLearning) {
             student: 0,
             price: item.price,
             picture: filePicture,
+            learningMethod: item.learningMethod,
         });
     }
     return results;

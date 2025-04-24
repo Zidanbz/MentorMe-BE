@@ -11,7 +11,7 @@ async function mappingResponse(id){
         for (const item of list) {
             if (item.status != "PENDING" && item.status != "REJECTED") {
                 const user = await getUsersByEmail(item.mentor);
-                const file = generatePublicUrl(item.picture);
+                const file = item.picture?.startsWith('http') ? item.picture : generatePublicUrl(item.picture);
                 const fullName = user.map(users => users.fullName)[0];
                 data.push({
                     ID: item.ID,
@@ -20,6 +20,7 @@ async function mappingResponse(id){
                     picture: file,
                     student: 0,
                     price: item.price,
+                    learningMethod: item.learningMethod,
                 })
             }
         }
