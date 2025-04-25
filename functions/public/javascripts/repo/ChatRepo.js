@@ -12,28 +12,25 @@ class ChatRepo {
     }
 
     // Fungsi untuk mendapatkan chat berdasarkan email pengirim atau penerima
-    async getChat(email) {
-        try {
-            let docRef = await db.collection("chat")
-                .where("emailCustomer", "==", email)
-                .get();
-
-            if (docRef.empty) {
-                docRef = await db.collection("chat")
-                    .where("emailMentor", "==", email)
-                    .get();
-            }
-            return docRef.docs.map(value => ({
-                idRoom: value.data().idRoom,
-                nameCustomer: value.data().nameCustomer,
-                nameMentor: value.data().nameMentor,
-                emailCustomer: value.data().emailCustomer,
-                emailMentor: value.data().emailMentor,
-            }));
-        }catch (err) {
-            throw new Error(err.message);
-        }
+async getChat(email) {
+    try {
+        const chatRef = db.collection("chat");
+        const [asCustomer, asMentor] = await Promise.all([
+            chatRef.where("emailCustomer", "==", email).get(),
+            chatRef.where("emailMentor", "==", email).get(),
+        ]);
+        const allChats = [...asCustomer.docs, ...asMentor.docs];
+        return allChats.map(value => ({
+            idRoom: value.data().idRoom,
+            nameCustomer: value.data().nameCustomer,
+            nameMentor: value.data().nameMentor,
+            emailCustomer: value.data().emailCustomer,
+            emailMentor: value.data().emailMentor,
+        }));
+    }catch (err) {
+        throw new Error(err.message);
     }
+}
 
     // Fungsi untuk mendapatkan chat berdasarkan emailCustomer dan emailMentor
     async getChatByUsers(emailCustomer, emailMentor) {

@@ -15,7 +15,7 @@ router.post('/api/voucher/created', authorizeRole("ADMIN"),
 });
 
 // ADMIN DAN USER
-router.get('/api/voucher/get', authorizeRole("USER"),
+router.get('/api/voucher/get', authorizeRole("USER" , "ADMIN"),
     async function(req,
                    res, next) {
         res.send(await listVoucherActive());
