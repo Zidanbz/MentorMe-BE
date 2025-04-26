@@ -9,7 +9,7 @@ async function mappingResponse(id){
     try {
         const list = await getProjectByLearningPath(id);
         for (const item of list) {
-            if (item.status != "PENDING" && item.status != "REJECTED") {
+            if (item.status != "PENDING" && item.status != "REJECT") {
                 const user = await getUsersByEmail(item.mentor);
                 const file = item.picture?.startsWith('http') ? item.picture : generatePublicUrl(item.picture);
                 const fullName = user.map(users => users.fullName)[0];
