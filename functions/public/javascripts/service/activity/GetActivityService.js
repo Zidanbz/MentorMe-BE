@@ -25,17 +25,22 @@ async function mappingResponse(req) {
             train: [],
         };
         for (const item of syllabus) {
-            const activities = await getActivityBySyllabus(item.ID);
+            // Ambil aktivitas berdasarkan syllabus ID dan learning ID
+            const activities = await getActivityBySyllabus(item.ID, learning[0].ID);
+            // Jika ada aktivitas yang ditemukan, tambahkan ke array train
             if (activities.length > 0) {
-                data.train.push({
-                    trainActivity: {
-                        meeting: item.Meeting,
-                        materialNameSyllabus: item.MaterialNameSyllabus,
-                        task: item.Task,
-                        critism: item.Critism,
-                        status: activities[0].status,
-                        IDActivity: activities[0].ID,
-                    }});
+                activities.forEach(activity => {
+                    data.train.push({
+                        trainActivity: {
+                            meeting: item.Meeting, // Pertemuan yang sesuai
+                            materialNameSyllabus: item.MaterialNameSyllabus, // Nama materi syllabus
+                            status: activity.status, // Status aktivitas
+                            IDActivity: activity.ID, // ID aktivitas
+                            task: activity.task, // Tugas yang harus dilakukan
+                            criticism: activity.criticism, // Kritik dan saran
+                        },
+                    });
+                });
             }
         }
         return data;

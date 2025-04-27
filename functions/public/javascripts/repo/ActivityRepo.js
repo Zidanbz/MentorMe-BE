@@ -2,13 +2,17 @@ const {db} = require("../config/FirebaseConfig");
 
 async function createActivity(data) {
     try {
-        const docRef = await db.collection("activity")
-            .doc();
-        await docRef.set(data.toObject());
+        const docRef = await db.collection("activity").doc(); // generate random document id
+        const newData = {
+            ...data.toObject(), // ambil semua field dari data
+            ID: docRef.id, // tambahkan ID baru dari docRef.id
+        };
+        await docRef.set(newData); // set dengan data baru
     }catch (error) {
         throw new Error(error.message);
     }
 }
+
 
 function check(data){
     if (!data || data.empty) {
@@ -16,18 +20,19 @@ function check(data){
     }
 }
 
-async function getActivityBySyllabus(syllabus) {
+async function getActivityBySyllabus(syllabus, learningId) {
     try {
-        const docRef =
-            await db.collection("activity")
-                .where("syllabus","==",syllabus)
-                .get();
-        check(docRef);
-        return docRef.docs.map(doc => (doc.data()));
+        const docRef = await db.collection("activity")
+            .where("syllabus", "==", syllabus) // Memfilter berdasarkan syllabus
+            .where("learning", "==", learningId) // Memfilter berdasarkan learningId
+            .get();
+        check(docRef); // Pastikan query berhasil
+        return docRef.docs.map(doc => doc.data()); // Mengembalikan data aktivitas yang ditemukan
     }catch (error) {
         throw new Error(error.message);
     }
 }
+
 
 async function updateActivity(data, ID) {
     try {
