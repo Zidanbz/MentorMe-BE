@@ -12,8 +12,8 @@ async function mappingResponse(user, mentor) {
 
         return {
             ID: mentor.ID,
-            fullName: user.fullName,
             email: mentor.email,
+            fullName: mentor.fullName,
             cv: fileCV,
             ktp: fileKtp,
             picture: filePicture,

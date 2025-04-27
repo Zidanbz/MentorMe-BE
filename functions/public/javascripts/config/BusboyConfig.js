@@ -90,11 +90,10 @@ async function uploadToStorage(localFilePath, destination) {
             cacheControl: 'public, max-age=31536000',
         },
     });
-
-    const publicUrl = `https://storage.googleapis.com/${storageBucket.name}/${destination}`;
-    return publicUrl;
+    // Hanya return satu format URL
+    return `https://storage.googleapis.com/${storageBucket.name}/${destination}`;
 }
-
+// Hapus atau tidak gunakan lagi fungsi generatePublicUrl jika sudah tidak diperlukan
 
 /**
  * Retrieves the name of a file from its Firebase Storage path.
@@ -194,5 +193,6 @@ module.exports = {
     extractMultipartForm,
     isFileNameAvailable,
     generatePublicUrl,
+    uploadToStorage,
 };
 

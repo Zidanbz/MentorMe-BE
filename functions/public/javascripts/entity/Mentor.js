@@ -1,7 +1,8 @@
 class Mentor {
-    constructor(ID, email, ktp, cv, linkPortfolio, about, status) {
+    constructor(ID, email, fullName, ktp, cv, linkPortfolio, about, status) {
         this.ID = ID;
         this.email = email;
+        this.fullName = fullName;
         this.ktp = ktp;
         this.cv = cv;
         this.linkPortfolio = linkPortfolio;
@@ -25,6 +26,14 @@ class Mentor {
 
     getEmail() {
         return this.email;
+    }
+
+    setFullName(fullName) {
+        this.fullName = fullName;
+    }
+
+    getFullName() {
+        return this.fullName;
     }
 
     setKtp(ktp) {
@@ -71,6 +80,7 @@ class Mentor {
         return {
             ID: this.ID,
             email: this.email,
+            fullName: this.fullName,
             ktp: this.ktp,
             cv: this.cv,
             linkPortfolio: this.linkPortfolio,

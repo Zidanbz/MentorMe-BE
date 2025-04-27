@@ -3,6 +3,7 @@ class Notif {
         this.ID = ID;
         this.title = title;
         this.message = message;
+        this.timestamp = new Date();
     }
 
     // Getter and Setter for ID
@@ -32,12 +33,21 @@ class Notif {
         this.message = value;
     }
 
+    setTimestamp(value) {
+        this.timestamp = value;
+    }
+
+    getTimestamp() {
+        return this.timestamp;
+    }
+
     // Convert the object to a plain object
     toObject() {
         return {
             ID: this.ID,
             title: this.title,
             message: this.message,
+            timestamp: this.timestamp,
         };
     }
 }

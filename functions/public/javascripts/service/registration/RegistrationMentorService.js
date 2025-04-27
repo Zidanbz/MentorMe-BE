@@ -21,6 +21,7 @@ async function mappingData(req, file){
         return new Mentor(
             ID(),
             req.email,
+            req.fullName,
             file.ktp,
             file.cv,
             req.portfolio,

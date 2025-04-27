@@ -20,6 +20,7 @@ async function getAllNotifs(){
             ID: doc.data().ID,
             title: doc.data().title,
             message: doc.data().message,
+            timestamp: doc.data().timestamp,
         }))
     }catch (error){
         throw new Error(error.message);
