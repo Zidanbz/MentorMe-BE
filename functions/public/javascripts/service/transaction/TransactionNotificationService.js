@@ -1,6 +1,6 @@
 const APIResponse = require("../../DTO/response/APIResponse");
 const HttpStatus = require("../../util/HttpStatus");
-const {createNewLearning} = require("../../repo/LearningRepo");
+const {createNewLearning, getLearningByEmailAndProject} = require("../../repo/LearningRepo");
 const {getTransactionById, updateTransactionAccepted} = require("../../repo/TransactionalRepo");
 const Learning = require("../../entity/Learning");
 const {ID} = require("../../util/UUID");
@@ -55,23 +55,33 @@ async function checkNotificationTopUp(orderId, req){
 async function checkStatus(req){
     try {
         const orderId = req.body.order_id;
-        const isAccept = req.body.fraud_status;
-        const topUp = await checkNotificationTopUp(orderId, req);
-        const transaction = await getTransactionById(orderId);
-        if (isAccept === "accept") {
-            await updateTransactionAccepted(isAccept, orderId);
-            if (!topUp){
+        const transactionStatus = req.body.transaction_status; // Status transaksi dari Midtrans
+        // Hanya lanjutkan jika statusnya settlement atau success
+        if (transactionStatus === 'settlement' || transactionStatus === 'success') {
+            const isAccept = req.body.fraud_status;
+            const topUp = await checkNotificationTopUp(orderId, req);
+            const transaction = await getTransactionById(orderId);
+
+            await updateTransactionAccepted(isAccept, orderId); // Update status transaksi sebagai diterima
+            if (!topUp) {
+                const existingLearning = await getLearningByEmailAndProject(transaction[0].email, transaction[0].course);
+                if (existingLearning && existingLearning.length > 0) {
+                    console.log(`Learning already exists for email: ${transaction[0].email}`);
+                    return;
+                }
                 const learning = await mappingToLearning(transaction[0]);
-                await createNewLearning(learning);
-                await createActivity(learning);
+                await createNewLearning(learning); // Hanya create learning setelah pembayaran sukses
+                await createActivity(learning); // Create activity setelah learning selesai dibuat
             }
         }else {
-            await updateTransactionAccepted(isAccept, orderId);
+            console.log(`Transaction with order_id ${orderId} is not successful. Skipping creation.`);
+            await updateTransactionAccepted('failed', orderId); // Update status transaksi jika gagal
         }
-    }catch (error){
+    }catch (error) {
         throw new Error(error.message);
     }
 }
+
 
 async function notificationService(req){
     try {

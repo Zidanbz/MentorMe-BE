@@ -46,9 +46,26 @@ async function getLearningById(ID){
     }
 }
 
+async function getLearningByEmailAndProject(email, projectId) {
+    try {
+        const snapshot = await db.collection('learning')
+            .where('email', '==', email)
+            .where('project', '==', projectId)
+            .get();
+        if (snapshot.empty) {
+            return null; // Tidak ada
+        }
+
+        return snapshot.docs.map(doc => doc.data());
+    }catch (error) {
+        throw new Error(error.message);
+    }
+}
+
 module.exports = {
     createNewLearning,
     getLearningByUser,
     getLearningByProject,
     getLearningById,
+    getLearningByEmailAndProject,
 }

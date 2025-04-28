@@ -66,7 +66,6 @@ async function dataTransaction(req){
 async function newTransaction(req){
     try {
         const {data, transactional} = await dataTransaction(req);
-        console.log("Data dikirim ke Midtrans:", JSON.stringify(data, null, 2)); // ❌
         await createNewTransaction(transactional);
             const response = await axios.post(
                 "https://app.sandbox.midtrans.com/snap/v1/transactions",
