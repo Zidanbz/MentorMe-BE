@@ -62,10 +62,20 @@ async function getLearningByEmailAndProject(email, projectId) {
     }
 }
 
+async function getAllLearnings() {
+    try {
+        const snapshot = await db.collection('learning').get();
+        return snapshot.docs.map(doc => doc.data());
+    }catch (error) {
+        throw new Error(error.message);
+    }
+}
+
 module.exports = {
     createNewLearning,
     getLearningByUser,
     getLearningByProject,
     getLearningById,
     getLearningByEmailAndProject,
+    getAllLearnings,
 }
