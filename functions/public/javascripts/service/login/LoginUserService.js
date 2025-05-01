@@ -70,6 +70,7 @@ async function mappingToDataResponse(users){
         role: users.customClaims,
         email: users.email,
         nameUser: user[0].fullName,
+        pictureUser: generatePublicUrl(user[0].picture),
     }
 }
 

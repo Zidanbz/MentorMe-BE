@@ -37,7 +37,14 @@ async function parseMultipartForm(req) {
                         .then(fileName => {
                             // uploads[fieldname] = path.basename(fileName); // Only store the file name
                             uploads[fieldname] = fileName; // fileName sekarang adalah URL dari hasil uploadToStorage
-                            fs.unlinkSync(localFilePath); // Remove the local file
+                            (async() => {
+    try {
+        await fs.promises.access(localFilePath, fs.constants.F_OK);
+        await fs.promises.unlink(localFilePath);
+    }catch (err) {
+        console.warn(`Failed to delete ${localFilePath}:`, err.message);
+    }
+})();
                             resolve();
                         })
                         .catch(reject);
