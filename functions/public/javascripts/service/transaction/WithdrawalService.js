@@ -57,7 +57,7 @@ class WithdrawalService{
             const money = await this.changeCoin(coin, req);
             const user = await getUserByUid(req);
             const object = new Withdrawal(coin, accountNumber, money, null, user.email);
-            this.objectRepo.save(object);
+            await this.objectRepo.save(object);
             return new APIResponse(
                 HttpStatus.OK.code,
                 null,
@@ -108,7 +108,7 @@ class WithdrawalService{
             const accountNumber = req.body.accountNumber;
             const moneys = await this.changeMoneyMe(money, req);
             const object = new Withdrawal(null, accountNumber, moneys, money, user.email, bank);
-            this.objectRepo.save(object);
+            await this.objectRepo.save(object);
             return new APIResponse(
                 HttpStatus.OK.code,
                 null,
@@ -158,6 +158,76 @@ class WithdrawalService{
             HttpStatus.BAD_REQUEST.message,
         );
     }
+
+    async getAllTransactions() {
+    try {
+        const listData = await this.objectRepo.getAllTransaction();
+        console.log("=== TRANSACTION RAW DATA ===", listData);
+        return listData.map(transaction => ({
+            "ID": transaction.ID,
+            "coin": transaction.coin,
+            "time": new Date(transaction.date._seconds * 1000).toISOString(),
+            "status": transaction.status,
+            "moneyMe": transaction.moneyMe,
+            "totalMoney": transaction.totalMoney,
+            "email": transaction.email, // tambahkan ini agar admin tahu milik siapa
+            "accountNumber": transaction.account_number,
+            "bank": transaction.bank,
+            "mentor": transaction.mentor,
+        }));
+    }catch (err) {
+        throw new Error(err.message);
+    }
+}
+
+// Fungsi utama untuk admin
+async getAllTransactionAdmin() {
+    try {
+        const data = await this.getAllTransactions();
+        return new APIResponse(
+            HttpStatus.OK.code,
+            null,
+            data,
+            HttpStatus.OK.message,
+        );
+    }catch (err) {
+        return new APIResponse(
+            HttpStatus.BAD_REQUEST.code,
+            err.message,
+            null,
+            HttpStatus.BAD_REQUEST.message,
+        );
+    }
+}
+
+// Fungsi utama untuk admin
+async updateStatusByAdmin(req) {
+    try {
+        const id = req.params.id; // Ambil ID dari parameter URL
+        const newStatus = req.body.status; // Ambil status dari body request
+
+        if (!id || !newStatus) {
+            throw new Error("ID dan status wajib diisi");
+        }
+        await this.objectRepo.printAllWithdrawalIDs(); // debug
+        // Update status transaksi di database
+        await this.objectRepo.updateStatus(id, newStatus);
+
+        return new APIResponse(
+            HttpStatus.OK.code,
+            null,
+            `Berhasil mengubah status menjadi ${newStatus}`,
+            HttpStatus.OK.message,
+        );
+    }catch (err) {
+        return new APIResponse(
+            HttpStatus.BAD_REQUEST.code,
+            err.message,
+            null,
+            HttpStatus.BAD_REQUEST.message,
+        );
+    }
+}
 }
 
 module.exports = WithdrawalService;

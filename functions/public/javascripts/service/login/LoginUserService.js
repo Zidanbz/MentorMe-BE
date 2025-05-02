@@ -109,7 +109,7 @@ if (fcmToken) {
     }catch (error) {
         return new APIResponse(
             HttpStatus.UNAUTHORIZED.code,
-            error.message,
+            error.message.replace(/^Error:\s*/, ""),
             null,
             HttpStatus.UNAUTHORIZED.message,
         )
