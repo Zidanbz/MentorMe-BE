@@ -61,5 +61,12 @@ router.put('/api/profile/mentor/update', authorizeRole("MENTOR"),
         res.send(response);
     });
 
+router.get('/api/profile/mentor', authorizeRole("MENTOR"),
+    async function(req, res, next) {
+        const object = new MentorService();
+        const response = await object.getProfile(req);
+        res.send(response);
+    });
+
 
 module.exports = router;

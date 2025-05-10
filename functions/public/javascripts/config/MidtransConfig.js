@@ -1,15 +1,15 @@
 const midtransClient = require('midtrans-client');
 
 const config = new midtransClient.CoreApi({
-    isProduction: false,
+    isProduction: true,
     // serverKey: "Mid-server-CJJ1sHZyvUthhpnnCGuU7fxd",
     // clientKey: "Mid-client-gVlqTD08yQcFwinj",
-    serverKey: "SB-Mid-server-q2N1tDSrxJwvePFvSjRb3hO5",
-    clientKey: "SB-Mid-client-dMyseBg2AlBqrR2b",
+    serverKey: "Mid-server-CJJ1sHZyvUthhpnnCGuU7fxd",
+    clientKey: "Mid-client-gVlqTD08yQcFwinj",
 });
 
 function encodeKeyTrans(){
-    return Buffer.from("SB-Mid-server-q2N1tDSrxJwvePFvSjRb3hO5:")
+    return Buffer.from("Mid-server-CJJ1sHZyvUthhpnnCGuU7fxd:")
         .toString("base64");
 }
 
