@@ -136,10 +136,10 @@ class ProjectService{
     async getProjectPendingByMentor(req){
         try {
             const user = await getUserByUid(req);
-            let data = await this.mappingResponseToProjectPendingByMentor(user.email);
-            if (data == null || data.length == 0) {
-                data = "Tidak ada project yang di pending"
-            }
+            const data = await this.mappingResponseToProjectPendingByMentor(user.email);
+            // if (data == null || data.length == 0) {
+            //     data = "Tidak ada project yang di pending"
+            // }
             return new APIResponse(
                 HttpStatus.OK.code,
                 null,
