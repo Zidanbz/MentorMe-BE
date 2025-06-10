@@ -68,7 +68,7 @@ async function newTransaction(req){
         const {data, transactional} = await dataTransaction(req);
         await createNewTransaction(transactional);
             const response = await axios.post(
-                "https://app.sandbox.midtrans.com/snap/v1/transactions",
+                "https://app.midtrans.com/snap/v1/transactions",
                 data,
                 {
                     headers: {

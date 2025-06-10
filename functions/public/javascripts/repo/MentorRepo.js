@@ -118,29 +118,32 @@ async function getMentorRejected() {
     }
 }
 
-async function updateProfile(email, file, ability, portfolio){
+async function updateProfile(email, file, ability, portfolio) {
     try {
         const docRef = await db.collection('mentor').where("email", "==", email).get();
-        docRef.docs.map(async doc => {
-            try {
-                const data = { id: doc.id };
-                await db.collection('mentor').doc(data.id).update({
-                    about: ability,
-                    ktp: file.ktp,
-                    cv: file.cv,
-                    linkPortfolio: portfolio,
-                });
-            }catch (error) {
-                throw new Error(`Failed to update voucher with ID ${doc.id}: ${error.message}`);
-            }
-        });
+
+        if (docRef.empty)throw new Error("Mentor not found");
+
+        const mentorId = docRef.docs[0].id;
+
+        const updateData = {};
+        if (ability !== undefined) updateData.about = ability;
+        if (portfolio !== undefined) updateData.linkPortfolio = portfolio;
+        if (file.ktp !== undefined) updateData.ktp = file.ktp;
+        if (file.cv !== undefined) updateData.cv = file.cv;
+
+        if (Object.keys(updateData).length === 0)return;
+
+        await db.collection('mentor').doc(mentorId).update(updateData);
+
         return docRef.docs.map(doc => ({
             ...doc.data(),
         }));
-    }catch (error){
+    }catch (error) {
         throw new Error(error.message);
     }
 }
+
 
     async function getMentorProfile(email) {
     try {

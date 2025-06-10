@@ -88,26 +88,27 @@ async function editUser(email , dataNew, {picture = null}){
     }
 }
 
-async function editUserMentor(email , fullName, picture){
+async function editUserMentor(email, fullName, picture) {
     try {
-        const docRef =
-            await db.collection("user")
-                .where('email', '==', email)
-                .get();
+        const docRef = await db.collection("user").where('email', '==', email).get();
 
-        const dataForUpdate =
-            docRef.docs.map(doc => ({
-                id: doc.id,
-            }));
+        if (docRef.empty)throw new Error("User not found");
 
-        await db.collection("user").doc(dataForUpdate[0].id).update({
-            picture: picture,
-            fullName: fullName,
-        });
-    }catch (error){
+        const userId = docRef.docs[0].id;
+
+        // Buat objek update hanya dengan field yang tidak undefined/null
+        const updateData = {};
+        if (picture !== undefined) updateData.picture = picture;
+        if (fullName !== undefined) updateData.fullName = fullName;
+
+        if (Object.keys(updateData).length === 0)return; // tidak ada data yang perlu diupdate
+
+        await db.collection("user").doc(userId).update(updateData);
+    }catch (error) {
         throw new Error(error.message);
     }
 }
+
 
 module.exports = {
     findEmailIsAlready,

@@ -54,7 +54,7 @@ router.get('/api/user/reject', authorizeRole("ADMIN"),
         res.send(response);
     });
 
-router.put('/api/profile/mentor/update', authorizeRole("MENTOR"),
+router.patch('/api/profile/mentor/update', authorizeRole("MENTOR"),
     async function(req, res, next) {
         const object = new MentorService();
         const response = await object.updateProfile(req);

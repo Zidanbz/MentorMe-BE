@@ -30,8 +30,12 @@ class MentorService{
         try {
             const user = await getUserByUid(req);
             const {fields, files} = await parseMultipartForm(req);
-            await updateProfile(user.email, files, fields.ability, fields.portfolio);
-            await editUserMentor(user.email, fields.fullName, files.picture);
+            if (fields.ability || fields.portfolio || Object.keys(files).length > 0) {
+                await updateProfile(user.email, files, fields.ability, fields.portfolio);
+            }
+            if (fields.fullName || files.picture) {
+                await editUserMentor(user.email, fields.fullName, files.picture);
+            }
             return new APIResponse(
                 HttpStatus.OK.code,
                 null,

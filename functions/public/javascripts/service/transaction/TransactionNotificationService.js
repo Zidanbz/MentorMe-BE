@@ -52,33 +52,72 @@ async function checkNotificationTopUp(orderId, req){
     return false;
 }
 
-async function checkStatus(req){
+/**
+ * Memproses notifikasi dari Midtrans dengan logika yang benar.
+ * Fungsi ini memastikan status transaksi diperbarui secara akurat berdasarkan
+ * `transaction_status` dan `fraud_status`.
+ * * @param {object} req - Objek request dari webhook Midtrans.
+ */
+async function checkStatus(req) {
     try {
         const orderId = req.body.order_id;
-        const transactionStatus = req.body.transaction_status; // Status transaksi dari Midtrans
-        // Hanya lanjutkan jika statusnya settlement atau success
-        if (transactionStatus === 'settlement' || transactionStatus === 'success') {
-            const isAccept = req.body.fraud_status;
-            const topUp = await checkNotificationTopUp(orderId, req);
-            const transaction = await getTransactionById(orderId);
+        const transactionStatus = req.body.transaction_status;
+        const fraudStatus = req.body.fraud_status;
 
-            await updateTransactionAccepted(isAccept, orderId); // Update status transaksi sebagai diterima
-            if (!topUp) {
-                const existingLearning = await getLearningByEmailAndProject(transaction[0].email, transaction[0].course);
-                if (existingLearning && existingLearning.length > 0) {
-                    console.log(`Learning already exists for email: ${transaction[0].email}`);
+        // Normalisasi status ke huruf kecil agar perbandingan konsisten
+        const normalizedStatus = transactionStatus.toLowerCase();
+        const normalizedFraudStatus = fraudStatus ? fraudStatus.toLowerCase() : '';
+
+        // 1. KONDISI UTAMA: Transaksi SUKSES
+        // Hanya jalankan jika pembayaran sudah 'settlement' (lunas) DAN status fraud 'accept' (aman).
+        if (normalizedStatus === 'settlement' && normalizedFraudStatus === 'accept') {
+            console.log(`Transaksi ${orderId} berhasil dan aman.`);
+            // Update status di database menjadi 'accept' atau 'success'
+            await updateTransactionAccepted('accept', orderId);
+            // Periksa apakah ini transaksi TopUp
+            const isTopUp = await checkNotificationTopUp(orderId, req);
+
+            // Jika bukan TopUp, lanjutkan membuat data 'Learning'
+            if (!isTopUp) {
+                const transaction = await getTransactionById(orderId);
+                if (!transaction || transaction.length === 0) {
+                    console.error(`Transaksi dengan order_id ${orderId} tidak ditemukan.`);
                     return;
                 }
+
+                // Mencegah duplikasi data learning jika notifikasi datang berkali-kali
+                const existingLearning = await getLearningByEmailAndProject(transaction[0].email, transaction[0].course);
+                if (existingLearning && existingLearning.length > 0) {
+                    console.log(`Learning untuk email ${transaction[0].email} sudah ada. Proses dilewati.`);
+                    return;
+                }
+
+                // Buat data learning dan activity baru
                 const learning = await mappingToLearning(transaction[0]);
-                await createNewLearning(learning); // Hanya create learning setelah pembayaran sukses
-                await createActivity(learning); // Create activity setelah learning selesai dibuat
+                await createNewLearning(learning);
+                await createActivity(learning);
             }
+        // 2. KONDISI GAGAL: Transaksi GAGAL secara final
+        // Ini terjadi jika waktu pembayaran habis (expire) atau dibatalkan (cancel/deny).
+        }else if (['cancel', 'deny', 'expire'].includes(normalizedStatus)) {
+            console.log(`Transaksi ${orderId} gagal dengan status: ${normalizedStatus}.`);
+            await updateTransactionAccepted('failed', orderId); // Update status di DB menjadi 'failed'
+        // 3. KONDISI MENUNGGU: Transaksi masih menunggu pembayaran
+        // Ini adalah status saat pelanggan memilih metode pembayaran tapi belum membayar.
+        }else if (normalizedStatus === 'pending') {
+            console.log(`Transaksi ${orderId} sedang menunggu pembayaran.`);
+            await updateTransactionAccepted('pending', orderId); // Update status di DB menjadi 'pending'
+        // 4. Kondisi lainnya (misal: 'challenge' dari sistem fraud)
         }else {
-            console.log(`Transaction with order_id ${orderId} is not successful. Skipping creation.`);
-            await updateTransactionAccepted('failed', orderId); // Update status transaksi jika gagal
+            console.log(`Menerima status belum ditangani: '${normalizedStatus}' untuk order_id ${orderId}.`);
+            // Anda bisa menambahkan status 'challenge' jika perlu
+            if (normalizedFraudStatus === 'challenge') {
+                await updateTransactionAccepted('challenge', orderId);
+            }
         }
     }catch (error) {
-        throw new Error(error.message);
+        console.error("Terjadi error di fungsi checkStatus:", error.message);
+        // Penting: Jangan throw error lagi agar server Midtrans tidak terus-menerus mengirim ulang notifikasi
     }
 }
 

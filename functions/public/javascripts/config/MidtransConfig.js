@@ -7,7 +7,7 @@ const config = new midtransClient.CoreApi({
 });
 
 function encodeKeyTrans(){
-    return Buffer.from("SB-Mid-server-q2N1tDSrxJwvePFvSjRb3hO5:")
+    return Buffer.from("Mid-server-CJJ1sHZyvUthhpnnCGuU7fxd:")
         .toString("base64");
 }
 
