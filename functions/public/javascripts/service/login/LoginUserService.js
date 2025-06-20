@@ -20,8 +20,8 @@ async function checkMentorPending(email){
     await getUsersByEmail(email);
     const mentor = await getMentorByEmails(email);
     if (mentor != false) {
-        if (mentor[0].status == "PENDING") {
-            throw new Error("Mentor status is pending");
+        if (mentor[0].status == "PENDING"|| mentor[0].status == "REJECTED" || mentor[0].status == "REJECT") {
+            throw new Error("Mentor status is " + mentor[0].status);
         }
     }
 }

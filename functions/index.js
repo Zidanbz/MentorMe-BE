@@ -20,9 +20,6 @@ const server = require("./app");
 exports.widgets22 = onRequest(
   {
     region: "asia-southeast2",
-    minInstances: 1, // menjaga 1 instance tetap hangat
-    memory: "1024MiB", // optional: tingkatkan jika proses berat
-    timeoutSeconds: 60, // optional: atur sesuai kebutuhan
   },
   server,
 );
