@@ -26,6 +26,8 @@ async getChat(email) {
             nameMentor: value.data().nameMentor,
             emailCustomer: value.data().emailCustomer,
             emailMentor: value.data().emailMentor,
+            pictureCustomer: value.data().pictureCustomer,
+            pictureMentor: value.data().pictureMentor,
         }));
     }catch (err) {
         throw new Error(err.message);

@@ -20,7 +20,9 @@ class ChatService {
             const email = req.body.email; // Ambil email penerima dari request body
             const customer = await getUsersByEmail(user.email);
             const mentor = await getUsersByEmail(email);
-            return new Chat(email, user.email, customer[0].fullName, mentor[0].fullName);
+            const pictureCustomer = customer[0].picture;
+            const pictureMentor = mentor[0].picture;
+            return new Chat(email, user.email, customer[0].fullName, mentor[0].fullName, pictureCustomer, pictureMentor);
         }catch (err) {
             throw new Error(err.message);
         }

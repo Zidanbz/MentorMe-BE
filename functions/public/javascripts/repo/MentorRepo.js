@@ -148,12 +148,10 @@ async function updateProfile(email, file, ability, portfolio) {
     async function getMentorProfile(email) {
     try {
         // Ambil data dari koleksi 'mentor'
-        const mentorSnap = await db.collection("mentor").where("email", "==", email).get();
-        if (mentorSnap.empty)throw new Error("Mentor profile not found.");
-
-        // Ambil data dari koleksi 'user'
-        const userSnap = await db.collection("user").where("email", "==", email).get();
-        if (userSnap.empty)throw new Error("User data not found.");
+        const [mentorSnap, userSnap] = await Promise.all([
+            db.collection("mentor").where("email", "==", email).limit(1).get(),
+            db.collection("user").where("email", "==", email).limit(1).get(),
+        ]);
 
         const mentorData = mentorSnap.docs[0].data();
         const userData = userSnap.docs[0].data();
@@ -167,6 +165,8 @@ async function updateProfile(email, file, ability, portfolio) {
             ktp: mentorData.ktp,
             cv: mentorData.cv,
             linkPortfolio: mentorData.linkPortfolio,
+            money: mentorData.money,
+            // coint: mentorData.coint,
             status: mentorData.status || "UNKNOWN",
         };
     }catch (error) {

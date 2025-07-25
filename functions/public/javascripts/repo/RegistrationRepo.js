@@ -13,17 +13,5 @@ async function registerUsers(req){
     }
 }
 
-// async function registrationMentor(req) {
-//     try {
-//         const docRef = db.collection('mentor').doc();
-//         await docRef.set(req.toObject());
-//         return await authentications.createUser({
-//             email: req.getEmail(),
-//             password: req.getPassword(),
-//         })
-//     }catch (error){
-//         throw new Error(error.message);
-//     }
-// }
 
 module.exports = {registerUsers}
