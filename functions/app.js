@@ -23,7 +23,7 @@ const topupRouter = require("./routes/TopUpRoutes");
 const consultationRouter = require("./routes/ConsultationRoutes");
 const notifRouter = require("./routes/NotifRouter");
 const chat = require("./routes/ChatRouter");
-const cors = require('cors');
+const cors = require("cors");
 const app = express();
 
 // Menggunakan middleware cors untuk menonaktifkan CORS
@@ -35,9 +35,11 @@ app.set("view engine", "pug");
 
 app.use(logger("dev"));
 app.use(express.json());
-app.use(express.urlencoded({
-  extended: false, // Add a trailing comma here
-}));
+app.use(
+  express.urlencoded({
+    extended: false, // Add a trailing comma here
+  }),
+);
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -68,12 +70,14 @@ app.use("/", chat);
 // initializeSocket(server);
 
 // catch 404 and forward to error handler
-app.use((req, res, next) => { // Prefer arrow function here
+app.use((req, res, next) => {
+  // Prefer arrow function here
   next(createError(404));
 });
 
 // error handler
-app.use((err, req, res, next) => { // Prefer arrow function here
+app.use((err, req, res, next) => {
+  // Prefer arrow function here
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get("env") === "development" ? err : {};
@@ -82,7 +86,6 @@ app.use((err, req, res, next) => { // Prefer arrow function here
   res.status(err.status || 500);
   res.render("error");
 });
-
 
 // jika deploy gunakan ini
 module.exports = app;
@@ -93,4 +96,3 @@ module.exports = app;
 //   initializeApp,
 //   app,
 // }
-
