@@ -52,16 +52,17 @@ class WithdrawalService {
     }
   }
 
-  // Fungsi Utama
+  // OPTIMASI: Fungsi Utama dengan parallel operations
   async doChangeCoin(req) {
     try {
       const coin = req.body.coin;
       const accountNumber = req.body.accountNumber;
 
-      // 1. Validasi penukaran coin tetap dijalankan
-      await this.changeCoin(coin, req);
-
-      const user = await getUserByUid(req);
+      // 1. Parallel operations untuk validasi dan mendapatkan data user
+      const [user] = await Promise.all([
+        getUserByUid(req),
+        this.changeCoin(coin, req), // Validasi coin, tapi tidak perlu simpan hasilnya
+      ]);
 
       // 2. Ambil saldo 'money' terbaru dari mentor
       const currentMentorMoney = await this.getMoneyMe(req);
@@ -118,16 +119,18 @@ class WithdrawalService {
     }
   }
 
-  // Fungsi Utama
+  // OPTIMASI: Fungsi Utama dengan parallel operations
   async doChangeMoney(req) {
     try {
-      const user = await getUserByUid(req);
       const money = req.body.money;
       const bank = req.body.bank;
       const accountNumber = req.body.accountNumber;
 
-      // 1. Validasi penarikan money tetap dijalankan
-      await this.changeMoneyMe(money, req);
+      // 1. Parallel operations untuk validasi dan mendapatkan data user
+      const [user] = await Promise.all([
+        getUserByUid(req),
+        this.changeMoneyMe(money, req), // Validasi money, tapi tidak perlu simpan hasilnya
+      ]);
 
       // 2. Ambil saldo 'money' terbaru dari mentor
       const currentMentorMoney = await this.getMoneyMe(req);
