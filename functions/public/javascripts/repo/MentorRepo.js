@@ -208,6 +208,26 @@ async function addEarningsToMentor(email, amount) {
   }
 }
 
+async function updateBalance(email, newCoinBalance, newMoneyBalance) {
+  try {
+    const snapshot = await db
+      .collection("mentor")
+      .where("email", "==", email)
+      .get();
+    if (snapshot.empty) {
+      throw new Error("Mentor tidak ditemukan untuk pembaruan saldo.");
+    }
+    const mentorDocRef = snapshot.docs[0].ref;
+    await mentorDocRef.update({
+      coint: newCoinBalance,
+      money: newMoneyBalance,
+    });
+    console.log(`Saldo untuk ${email} berhasil diperbarui.`);
+  }catch (error) {
+    throw new Error(error.message);
+  }
+}
+
 module.exports = {
   createNewMentor,
   getMentorByProject,
@@ -219,4 +239,5 @@ module.exports = {
   updateProfile,
   getMentorProfile,
   addEarningsToMentor,
+  updateBalance,
 };
