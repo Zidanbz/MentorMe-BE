@@ -13,7 +13,26 @@ class LearningCompletionService {
    */
   async completeLearningProcess(learningId) {
     try {
-      // 1. Verifikasi apakah semua tugas sudah selesai
+      // 1. Dapatkan detail pendaftaran (learning) untuk pengecekan awal
+      const learningData = await LearningRepo.getLearningById(learningId);
+      if (!learningData || learningData.length === 0) {
+        throw new Error("Data pembelajaran tidak ditemukan.");
+      }
+      const learning = learningData[0];
+
+      // 2. Cek apakah pembelajaran sudah pernah diselesaikan
+      const isAlreadyCompleted =
+        learning.progress === true || learning.progress === "true";
+      if (isAlreadyCompleted) {
+        return new APIResponse(
+          HttpStatus.BAD_REQUEST.code,
+          "Pembelajaran ini sudah pernah diselesaikan sebelumnya.",
+          null,
+          HttpStatus.BAD_REQUEST.message,
+        );
+      }
+
+      // 3. Verifikasi apakah semua tugas sudah selesai
       const allTasksCompleted = await ActivityRepo.checkAllActivitiesComplete(
         learningId,
       );
@@ -23,16 +42,8 @@ class LearningCompletionService {
         );
       }
 
-      // 2. Dapatkan detail pendaftaran (learning) untuk mendapatkan ID proyek
-      const learningData = await LearningRepo.getLearningById(learningId);
-      if (!learningData || learningData.length === 0) {
-        throw new Error("Data pembelajaran tidak ditemukan.");
-      }
-      const learning = learningData[0];
+      // 4. Dapatkan detail proyek untuk mengambil harga dan email mentor
       const projectId = learning.project;
-
-      // 3. Dapatkan detail proyek untuk mengambil harga dan email mentor
-      // Pastikan Anda memiliki ProjectRepo dengan fungsi getProjectById
       const projectData = await ProjectRepo.getProjectById(projectId);
       if (!projectData) {
         throw new Error("Detail proyek tidak ditemukan.");
@@ -40,18 +51,18 @@ class LearningCompletionService {
       const mentorEmail = projectData.mentor;
       const coursePrice = projectData.price;
 
-      // 4. Hitung pendapatan untuk mentor
+      // 5. Hitung pendapatan untuk mentor
       // Misalnya, jika Anda ingin memberikan 80% dari harga kursus kepada mentor.
       // Anda bisa menyesuaikan logika perhitungan ini sesuai kebijakan bisnis Anda.
       const mentorEarnings = coursePrice * 0.8; // 80% untuk mentor
 
-      // 5. Tambahkan pendapatan ke saldo mentor
+      // 6. Tambahkan pendapatan ke saldo mentor
       await MentorRepo.addEarningsToMentor(mentorEmail, mentorEarnings);
 
-      // 6. Perbarui status progress pembelajaran menjadi selesai
+      // 7. Perbarui status progress pembelajaran menjadi selesai
       await LearningRepo.updateLearningProgress(learningId, true);
 
-      // 7. Berikan respons sukses
+      // 8. Berikan respons sukses
       return new APIResponse(
         HttpStatus.OK.code,
         null,
