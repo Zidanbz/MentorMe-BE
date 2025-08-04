@@ -3,37 +3,52 @@ class Notif {
         this.ID = ID;
         this.title = title;
         this.message = message;
+        this.timestamp = new Date();
     }
 
+    // Getter and Setter for ID
     getID() {
-        return this._ID;
+        return this.ID;
     }
 
     setID(value) {
-        this._ID = value;
+        this.ID = value;
     }
 
-    gettitle() {
-        return this._title;
+    // Getter and Setter for title
+    getTitle() {
+        return this.title;
     }
 
-    settitle(value) {
-        this._title = value;
+    setTitle(value) {
+        this.title = value;
     }
 
-    getmessage() {
-        return this._message;
+    // Getter and Setter for message
+    getMessage() {
+        return this.message;
     }
 
-    setmessage(value) {
-        this._message = value;
+    setMessage(value) {
+        this.message = value;
     }
+
+    setTimestamp(value) {
+        this.timestamp = value;
+    }
+
+    getTimestamp() {
+        return this.timestamp;
+    }
+
+    // Convert the object to a plain object
     toObject() {
         return {
             ID: this.ID,
             title: this.title,
             message: this.message,
-        }
+            timestamp: this.timestamp,
+        };
     }
 }
 

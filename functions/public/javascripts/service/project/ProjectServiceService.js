@@ -5,7 +5,7 @@ const {getUserByUid} = require("../../util/AutenticationUtil")
 const APIResponse = require("../../DTO/response/APIResponse");
 const HttpStatus = require("../../util/HttpStatus");
 const {getLearningPathByName} = require("../../repo/LearningPathRepo")
-const {parseMultipartForm, getFileMetadata} = require("../../config/BusboyConfig");
+const {parseMultipartForm, generatePublicUrl} = require("../../config/BusboyConfig");
 
 function cekLearningPath(learningPath) {
     if (learningPath == null || learningPath.length === 0) {
@@ -13,32 +13,6 @@ function cekLearningPath(learningPath) {
     }
     return true;
 }
-
-// async function mappingProject(request) {
-//     try {
-//         const handlingRequest = await handleFileAndBodyUpload(request);
-//         const objectProject = new Project();
-//         const req = handlingRequest.data;
-//         const learningPath = await getLearningPathByName(req.learningPath);
-//         cekLearningPath(learningPath);
-//         const email = await getUserByUid(request);
-//         const filename = await saveFile(handlingRequest.tempFile);
-//
-//         objectProject.setID(ID());
-//         objectProject.setCoinFree(500);
-//         objectProject.setMaterialName(req.materialName);
-//         objectProject.setInfo(req.info);
-//         objectProject.setLinkVideo(req.linkVideo);
-//         objectProject.setPrice(req.price);
-//         objectProject.setPicture(filename);
-//         objectProject.setLearningPath(learningPath.ID);
-//         objectProject.setMentor(email.email);
-//
-//         return objectProject;
-//     }catch (error) {
-//         throw new Error(error.message);
-//     }
-// }
 
 async function mappingProject(fields, files, req) {
     try {
@@ -59,6 +33,7 @@ async function mappingProject(fields, files, req) {
         objectProject.setPicture(files.picture);
         objectProject.setLearningPath(learningPath.ID);
         objectProject.setMentor(email.email);
+        objectProject.setLearningMethod(fields.learningMethod);
         objectProject.setStatus("PENDING");
 
         return objectProject;
@@ -67,40 +42,10 @@ async function mappingProject(fields, files, req) {
     }
 }
 
-// async function transformData(listProject, listLearning) {
-//     return await Promise.all(
-//         listProject.map(async item => {
-//             const filePicture = await getFile(item.picture);
-//             return {
-//                 id: item.ID,
-//                 materialName: item.materialName,
-//                 student: 0,
-//                 price: filePicture,
-//                 picture: item.picture,
-//             }; // Tidak perlu trailing comma pada objek karena ini adalah objek satu baris.
-//         }) // Koma ini ditambahkan setelah elemen terakhir dalam array.
-//     );
-// }
-
-// async function transformData(listProject, listLearning) {
-//     const results = [];
-//     for (const item of listProject) {
-//         const filePicture = await getFile(item.picture);
-//         results.push({
-//             id: item.ID,
-//             materialName: item.materialName,
-//             student: 0,
-//             price: filePicture,
-//             picture: item.picture,
-//         });
-//     }
-//     return results;
-// }
-
 async function transformData(listProject) {
     const results = [];
     for (const item of listProject) {
-        const filePicture = await getFileMetadata(item.picture);
+        const filePicture = generatePublicUrl(item.picture);
         results.push({
             id: item.ID,
             materialName: item.materialName,
@@ -108,6 +53,7 @@ async function transformData(listProject) {
             price: item.price,
             learningPath: item.learningPath,
             picture: filePicture,
+            learningMethod: item.learningMethod,
         });
     }
     return results;

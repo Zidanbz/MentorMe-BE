@@ -46,6 +46,8 @@ class ActivityService{
                     "meeting": "Pertemuan " + i,
                     "statusReport": activity.statusReport,
                     "IDActivity": activity.ID,
+                    "documentasi": activity.documentasi,
+                    "activity": activity.activity,
                 });
             }
             return data;

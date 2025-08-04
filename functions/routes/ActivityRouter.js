@@ -7,7 +7,7 @@ const {authorizeRole} = require("../public/javascripts/config/SecurityConfig");
 const ActivityService = require("../public/javascripts/service/activity/ActivityService");
 
 /* GET home page. */
-router.get('/api/my/activity/:id', authorizeRole("USER", "MENTOR"),
+router.get('/api/my/activity/:id', authorizeRole("USER", "MENTOR", "ADMIN"),
     async function(req,
              res, next) {
     res.send(await getMyActivity(req));
@@ -19,7 +19,7 @@ router.post('/api/my/activity/upload/:id', authorizeRole("USER"),
         res.send(await uploadActivity(req));
 });
 
-router.get('/api/activity/:id', authorizeRole("MENTOR"),
+router.get('/api/activity/:id', authorizeRole("MENTOR", "ADMIN"),
     async function(req,
                    res, next) {
     const object = new ActivityService();

@@ -4,7 +4,7 @@ const HttpStatus = require("../../util/HttpStatus")
 const LearningPath = require("../../entity/LearningPath")
 const {ID} = require("../../util/UUID")
 const {getCategoryByName} = require("../../repo/CategoryRepo")
-const {getFileMetadata, parseMultipartForm} = require("../../config/BusboyConfig");
+const { parseMultipartForm, generatePublicUrl} = require("../../config/BusboyConfig");
 
 async function isDuplicates(condition, name) {
     if (condition) {
@@ -47,7 +47,7 @@ async function mappingResponse(){
     try {
         await getAllLearningPath().then(async learn => {
             for (const item of learn) {
-                const file = await getFileMetadata(item.picture);
+                const file = generatePublicUrl(item.picture);
                 data.push({
                     ID: item.ID,
                     name: item.name,

@@ -3,13 +3,13 @@ const {getUsersByEmail} = require("../../repo/UserRepo");
 const APIResponse = require("../../DTO/response/APIResponse")
 const HttpStatus = require("../../util/HttpStatus")
 const {getUserByUid} = require("../../util/AutenticationUtil");
-const {getFileMetadata} = require("../../config/BusboyConfig")
+const { generatePublicUrl} = require("../../config/BusboyConfig")
 
 async function mappingResponse(dataUser, dataCustomer) {
     try {
         const objectDataUser = dataUser.length ? dataUser[0] : null;
         const objectDataCustomer = dataCustomer.length ? dataCustomer[0] : null;
-        const file = objectDataUser.picture ? await getFileMetadata(objectDataUser.picture) : "No Picture";
+        const file = objectDataUser.picture && objectDataUser.picture.startsWith('http') ? objectDataUser.picture : objectDataUser.picture ? generatePublicUrl(objectDataUser.picture) : "No Picture";
 
         return {
             fullName: objectDataUser.fullName,

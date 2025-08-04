@@ -57,5 +57,16 @@ router.get('/api/history/transaction/mentor', authorizeRole("MENTOR"),
         res.send(response);
     });
 
+    router.get('/api/admin/history/transaction', authorizeRole("ADMIN"), async(req, res, next) => {
+    const service = new WithdrawalService();
+    const response = await service.getAllTransactionAdmin();
+    res.send(response);
+});
+
+router.put("/api/admin/withdrawal/status/:id", async(req, res) => {
+        const service = new WithdrawalService();
+    const response = await service.updateStatusByAdmin(req);
+    res.status(response.code).json(response);
+});
 
 module.exports = router;

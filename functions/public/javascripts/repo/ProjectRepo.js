@@ -21,6 +21,7 @@ function mapProjectDataToObject(data, object) {
     object.setCoinFree(data.coinFree);
     object.setLearningPath(data.learningPath);
     object.setMentor(data.mentor);
+    object.setLearningMethod(data.learningMethod);
 }
 
 function check(data) {

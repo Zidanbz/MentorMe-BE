@@ -2,16 +2,16 @@ const {getProjectByLearningPath} = require("../../repo/ProjectRepo");
 const APIResponse = require("../../DTO/response/APIResponse");
 const HttpStatus = require("../../util/HttpStatus");
 const {getUsersByEmail} = require("../../repo/UserRepo");
-const {getFileMetadata} = require("../../config/BusboyConfig");
+const {generatePublicUrl} = require("../../config/BusboyConfig");
 
 async function mappingResponse(id){
     const data = [];
     try {
         const list = await getProjectByLearningPath(id);
         for (const item of list) {
-            if (item.status != "PENDING" && item.status != "REJECTED") {
+            if (item.status != "PENDING" && item.status != "REJECT") {
                 const user = await getUsersByEmail(item.mentor);
-                const file = await getFileMetadata(item.picture);
+                const file = item.picture?.startsWith('http') ? item.picture : generatePublicUrl(item.picture);
                 const fullName = user.map(users => users.fullName)[0];
                 data.push({
                     ID: item.ID,
@@ -20,6 +20,7 @@ async function mappingResponse(id){
                     picture: file,
                     student: 0,
                     price: item.price,
+                    learningMethod: item.learningMethod,
                 })
             }
         }

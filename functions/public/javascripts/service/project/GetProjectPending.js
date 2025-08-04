@@ -2,7 +2,7 @@ const {getProjectPending} = require("../../repo/ProjectRepo");
 const APIResponse = require("../../DTO/response/APIResponse");
 const HttpStatus = require("../../util/HttpStatus");
 const {getUsersByEmail} = require("../../repo/UserRepo");
-const {getFileMetadata} = require("../../config/BusboyConfig");
+const { generatePublicUrl} = require("../../config/BusboyConfig");
 const { getMentorByEmail } = require("../../repo/MentorRepo");
 
 async function mappingResponse(){
@@ -10,7 +10,7 @@ async function mappingResponse(){
     try {
         const list = await getProjectPending();
         for (const item of list) {
-            const file = await getFileMetadata(item.picture);
+            const filePicture = generatePublicUrl(item.picture);
             const user = await getUsersByEmail(item.mentor);
             const mentor = await getMentorByEmail(item.mentor);
             const fullName = user.map(users => users.fullName)[0];
@@ -20,11 +20,12 @@ async function mappingResponse(){
                 materialName: item.materialName,
                 fullName: fullName,
                 about: about,
-                picture: file,
+                picture: filePicture,
                 student: 0,
                 price: item.price,
                 linkVideo: item.linkVideo,
                 status: item.status,
+                learningMethod: item.learningMethod,
             })
         }
         return data

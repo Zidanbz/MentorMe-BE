@@ -1,7 +1,7 @@
 const {getLearningPathByCategory, getAllLearningPaths} = require("../../repo/LearningPathRepo");
 const APIResponse = require("../../DTO/response/APIResponse")
 const HttpStatus = require("../../util/HttpStatus");
-const {getFileMetadata} = require("../../config/BusboyConfig")
+const { generatePublicUrl} = require("../../config/BusboyConfig")
 
 function checkEmpty(data){
     if (data === undefined || data === null) {
@@ -9,17 +9,17 @@ function checkEmpty(data){
     }
 }
 
-async function mappingResponse(data){
+async function mappingResponse(data) {
     checkEmpty(data);
     const objectResponse = [];
     for (const item of data) {
-        const picture = await getFileMetadata(item.picture);
+        const picture = item.picture?.startsWith('http') ? item.picture : generatePublicUrl(item.picture);
         const dataItem = {
             ID: item.ID,
             name: item.name,
-            student: 20,
+            student: 20, // default sementara
             picture: picture,
-        }
+        };
         objectResponse.push(dataItem);
     }
     return objectResponse;

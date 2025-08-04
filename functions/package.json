@@ -7,7 +7,8 @@
     "shell": "firebase functions:shell",
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
-    "logs": "firebase functions:log"
+    "logs": "firebase functions:log",
+    "test": "cross-env NODE_ENV=test jest --testTimeout=10000 --detectOpenHandles"
   },
   "engines": {
     "node": "20"
@@ -20,18 +21,23 @@
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "express": "^4.21.2",
-    "firebase-admin": "^12.6.0",
+    "firebase-admin": "^13.3.0",
     "firebase-functions": "^6.2.0",
     "midtrans-client": "^1.4.2",
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
-    "nodemailer": "^6.10.0",
-    "pug": "^3.0.3"
+    "node-cache": "^5.1.2",
+    "nodemailer": "^6.10.1",
+    "pug": "^3.0.3",
+    "uuid-v4": "^0.1.0"
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "eslint": "^8.15.0",
     "eslint-config-google": "^0.14.0",
-    "firebase-functions-test": "^3.1.0"
+    "firebase-functions-test": "^3.1.0",
+    "jest": "^30.0.2",
+    "supertest": "^7.1.1"
   },
   "private": true
 }

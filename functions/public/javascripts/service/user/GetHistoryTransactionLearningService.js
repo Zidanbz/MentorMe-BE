@@ -30,6 +30,7 @@ async function history(req){
                     data.history.push({
                         status: transaction.status,
                         price: transaction.price,
+                        transactionID: transaction.ID,
                         project: {
                             ID: project.ID,
                             materialName: project.materialName,

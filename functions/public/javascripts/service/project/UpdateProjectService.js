@@ -4,7 +4,7 @@ const {getUserByUid} = require("../../util/AutenticationUtil")
 const APIResponse = require("../../DTO/response/APIResponse");
 const HttpStatus = require("../../util/HttpStatus");
 const {getLearningPathByName} = require("../../repo/LearningPathRepo")
-const {parseMultipartForm, getFileMetadata} = require("../../config/BusboyConfig");
+const {parseMultipartForm, generatePublicUrl} = require("../../config/BusboyConfig");
 
 function cekLearningPath(learningPath) {
     if (learningPath == null || learningPath.length === 0) {
@@ -27,6 +27,7 @@ async function mappingProject(fields, files, req) {
         objectProject.setPicture(files.picture);
         objectProject.setLearningPath(learningPath.ID);
         objectProject.setMentor(email.email);
+        objectProject.setLearningMethod(fields.learningMethod);
 
         return objectProject;
     }catch (error) {
@@ -37,13 +38,14 @@ async function mappingProject(fields, files, req) {
 async function transformData(listProject, listLearning) {
     const results = [];
     for (const item of listProject) {
-        const filePicture = await getFileMetadata(item.picture);
+        const filePicture = generatePublicUrl(item.picture);
         results.push({
             id: item.ID,
             materialName: item.materialName,
             student: 0,
             price: item.price,
             picture: filePicture,
+            learningMethod: item.learningMethod,
         });
     }
     return results;

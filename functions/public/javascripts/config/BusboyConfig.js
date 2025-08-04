@@ -35,8 +35,16 @@ async function parseMultipartForm(req) {
                 writeStream.on('close', () => {
                     uploadToStorage(localFilePath, storagePath)
                         .then(fileName => {
-                            uploads[fieldname] = path.basename(fileName); // Only store the file name
-                            fs.unlinkSync(localFilePath); // Remove the local file
+                            // uploads[fieldname] = path.basename(fileName); // Only store the file name
+                            uploads[fieldname] = fileName; // fileName sekarang adalah URL dari hasil uploadToStorage
+                            (async() => {
+    try {
+        await fs.promises.access(localFilePath, fs.constants.F_OK);
+        await fs.promises.unlink(localFilePath);
+    }catch (err) {
+        console.warn(`Failed to delete ${localFilePath}:`, err.message);
+    }
+})();
                             resolve();
                         })
                         .catch(reject);
@@ -62,6 +70,9 @@ async function parseMultipartForm(req) {
     });
 }
 
+function generatePublicUrl(fileName) {
+    return `https://storage.googleapis.com/${storageBucket.name}/uploads/${fileName}`;
+}
 /**
  * Uploads a file to Firebase Storage and returns its name/path.
  *
@@ -69,15 +80,27 @@ async function parseMultipartForm(req) {
  * @param {string} destination Path in Firebase Storage.
  * @returns {Promise<string>} Path of the uploaded file in Firebase Storage.
  */
+// async function uploadToStorage(localFilePath, destination) {
+//         await storageBucket.upload(localFilePath, {
+//             destination,
+//             metadata: {
+//                 cacheControl: 'public, max-age=31536000',
+//             },
+//         });
+//         return destination;
+// }
+
 async function uploadToStorage(localFilePath, destination) {
-        await storageBucket.upload(localFilePath, {
-            destination,
-            metadata: {
-                cacheControl: 'public, max-age=31536000',
-            },
-        });
-        return destination;
+    await storageBucket.upload(localFilePath, {
+        destination,
+        metadata: {
+            cacheControl: 'public, max-age=31536000',
+        },
+    });
+    // Hanya return satu format URL
+    return `https://storage.googleapis.com/${storageBucket.name}/${destination}`;
 }
+// Hapus atau tidak gunakan lagi fungsi generatePublicUrl jika sudah tidak diperlukan
 
 /**
  * Retrieves the name of a file from its Firebase Storage path.
@@ -176,5 +199,7 @@ module.exports = {
     getFileAsBuffer,
     extractMultipartForm,
     isFileNameAvailable,
+    generatePublicUrl,
+    uploadToStorage,
 };
 

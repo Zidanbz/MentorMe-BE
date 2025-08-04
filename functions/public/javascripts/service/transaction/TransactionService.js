@@ -8,6 +8,7 @@ const {getProjectById} = require("../../repo/ProjectRepo");
 const APIResponse = require("../../DTO/response/APIResponse")
 const HttpStatus = require("../../util/HttpStatus");
 const {getVoucherById} = require("../../repo/VoucherRepo")
+// const { v4: uuidv4 } = require('uuid');
 
 
 async function mapping(req, idProject, price){
@@ -33,27 +34,26 @@ async function dataTransaction(req){
             let discount;
             discount = (voucher[0].piece / 100) * transactional.price;
             discount = Math.min(discount, transactional.price);
-            price = transactional.price - discount;
+            price = Number(transactional.price - discount);
         }else {
-            price = transactional.price;
+            price = Number(transactional.price);
         }
-        if (project.materialName.length > 50){
-            name = "Name Is Not Defined";
-        }else {
-            name = project.name;
-        }
-
+        if (!project.materialName || project.materialName.length > 50) {
+    name = "Name Is Not Defined";
+}else {
+    name = project.materialName;
+}
         const data = {
             "transaction_details": {
                 order_id: transactional.ID,
                 gross_amount: price,
             },
-            "item_details": {
+            "item_details": [{
                 "id": project.ID,
                 "price": price,
                 "quantity": 1,
                 "name": name,
-            },
+            }],
             "customer_details": {
                 "email": transactional.email,
             },
@@ -69,7 +69,7 @@ async function newTransaction(req){
         const {data, transactional} = await dataTransaction(req);
         await createNewTransaction(transactional);
             const response = await axios.post(
-                "https://app.sandbox.midtrans.com/snap/v1/transactions",
+                "https://app.midtrans.com/snap/v1/transactions",
                 data,
                 {
                     headers: {
@@ -79,10 +79,17 @@ async function newTransaction(req){
                     },
                 },
             );
+
+        // Tambahkan transactionID ke dalam response data
+        const responseData = {
+            ...response.data,
+            transactionID: transactional.ID,
+        };
+
         return new APIResponse(
             HttpStatus.CREATED.code,
             null,
-            response.data,
+            responseData,
             HttpStatus.CREATED.message,
         )
     }catch (error) {

@@ -3,7 +3,7 @@ const APIResponse = require("../../DTO/response/APIResponse");
 const {editUserMentor} = require("../../repo/UserRepo");
 const {getUserByUid} = require("../../util/AutenticationUtil");
 const { parseMultipartForm } = require("../../config/BusboyConfig");
-const { updateProfile } = require("../../repo/MentorRepo");
+const { updateProfile, getMentorProfile } = require("../../repo/MentorRepo");
 
 class MentorService{
     async extractRequest(req){
@@ -30,12 +30,44 @@ class MentorService{
         try {
             const user = await getUserByUid(req);
             const {fields, files} = await parseMultipartForm(req);
-            await updateProfile(user.email, files, fields.ability, fields.portfolio);
-            await editUserMentor(user.email, fields.fullName, files.picture);
+            if (fields.ability || fields.portfolio || Object.keys(files).length > 0) {
+                await updateProfile(user.email, files, fields.ability, fields.portfolio);
+            }
+            if (fields.fullName || files.picture) {
+                await editUserMentor(user.email, fields.fullName, files.picture);
+            }
             return new APIResponse(
                 HttpStatus.OK.code,
                 null,
                 "Success",
+                HttpStatus.OK.message,
+            );
+        }catch (error) {
+            return new APIResponse(
+                HttpStatus.BAD_REQUEST.code,
+                error.message,
+                null,
+                HttpStatus.BAD_REQUEST.message,
+            );
+        }
+    }
+
+     async getProfile(req) {
+        try {
+            const user = await getUserByUid(req);
+            const profile = await getMentorProfile(user.email);
+            if (!profile) {
+                return new APIResponse(
+                    HttpStatus.NOT_FOUND.code,
+                    "Profile not found",
+                    null,
+                    HttpStatus.NOT_FOUND.message,
+                );
+            }
+            return new APIResponse(
+                HttpStatus.OK.code,
+                null,
+                profile,
                 HttpStatus.OK.message,
             );
         }catch (error) {

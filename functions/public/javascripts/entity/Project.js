@@ -1,7 +1,7 @@
 class Project{
     constructor(ID, linkVideo, materialName,
                 info, price, picture, coinFree,
-                learningPath, mentor, status) {
+                learningPath, mentor, status, learningMethod) {
         this.ID = ID;
         this.linkVideo = linkVideo;
         this.materialName = materialName;
@@ -12,6 +12,7 @@ class Project{
         this.learningPath = learningPath;
         this.mentor = mentor;
         this.status = status;
+        this.learningMethod = learningMethod;
     }
 
     setID(ID) {
@@ -94,6 +95,15 @@ class Project{
         return this.status;
     }
 
+    setLearningMethod(learningMethod){
+        this.learningMethod = learningMethod;
+    }
+
+    getLearningMethod() {
+        return this.learningMethod;
+    }
+
+
     toObject(){
         return {
             ID: this.ID,
@@ -106,6 +116,7 @@ class Project{
             learningPath: this.learningPath,
             mentor: this.mentor,
             status: this.status,
+            learningMethod: this.learningMethod,
         }
     }
 }

@@ -1,9 +1,9 @@
-const {getLearningByUser, getLearningByProject} = require("../../repo/LearningRepo");
+const {getLearningByUser, getLearningByProject, getAllLearnings} = require("../../repo/LearningRepo");
 const {getProjectById} = require("../../repo/ProjectRepo");
 const APIResponse = require("../../DTO/response/APIResponse");
 const HttpStatus = require("../../util/HttpStatus");
 const {getUserByUid} = require("../../util/AutenticationUtil");
-const {getFileMetadata} = require("../../config/BusboyConfig");
+const { generatePublicUrl} = require("../../config/BusboyConfig");
 
 async function countStudentInLearn(ID){
     try {
@@ -23,7 +23,7 @@ async function mappingResponse(req){
         }
         for (const value of learning){
             const project = await getProjectById(value.project);
-            const file = await getFileMetadata(project.picture);
+            const filePicture = generatePublicUrl(project.picture);
             const count = await countStudentInLearn(project.ID);
             data.learning.push({
                 "ID": value.ID,
@@ -31,7 +31,7 @@ async function mappingResponse(req){
                 "progress": value.progress,
                 "project": {
                    materialName: project.materialName,
-                    picture: file,
+                    picture: filePicture,
                     student: count,
                 },
             });
@@ -61,6 +61,60 @@ async function getLearningsUser(req){
     }
 }
 
+
+async function mappingAllLearningsResponse() {
+    try {
+        const learnings = await getAllLearnings();
+        const data = [];
+
+        for (const value of learnings) {
+            if (!value.project)continue; // skip jika tidak ada ID project
+
+            const project = await getProjectById(value.project);
+            if (!project)continue; // skip jika project tidak ditemukan
+
+            const filePicture = generatePublicUrl(project.picture);
+            const count = await countStudentInLearn(project.ID);
+
+            data.push({
+                "ID": value.ID || null,
+                "user": value.user || value.email || null,
+                "progress": value.progress || 0,
+                "project": {
+                    materialName: project.materialName,
+                    picture: filePicture,
+                    student: count,
+                },
+            });
+        }
+
+        return { learning: data };
+    }catch (err) {
+        throw new Error(err.message);
+    }
+}
+
+
+async function getAllLearningsForAdmin(req){
+    try {
+        const data = await mappingAllLearningsResponse();
+        return new APIResponse(
+            HttpStatus.OK.code,
+            null,
+            data,
+            HttpStatus.OK.message,
+        );
+    }catch (error){
+        return new APIResponse(
+            HttpStatus.INTERNAL_SERVER_ERROR.code,
+            error.message,
+            null,
+            HttpStatus.INTERNAL_SERVER_ERROR.message,
+        );
+    }
+}
+
 module.exports = {
     getLearningsUser,
+    getAllLearningsForAdmin,
 }

@@ -2,18 +2,19 @@ const {deleteProject, getProjectsByMentor} = require("../../repo/ProjectRepo");
 const {getUserByUid} = require("../../util/AutenticationUtil")
 const APIResponse = require("../../DTO/response/APIResponse");
 const HttpStatus = require("../../util/HttpStatus");
-const {getFileMetadata} = require("../../config/BusboyConfig");
+const { generatePublicUrl} = require("../../config/BusboyConfig");
 
 async function transformData(listProject, listLearning) {
     const results = [];
     for (const item of listProject) {
-        const filePicture = await getFileMetadata(item.picture);
+        const filePicture = generatePublicUrl(item.picture);
         results.push({
             id: item.ID,
             materialName: item.materialName,
             student: 0,
             price: item.price,
             picture: filePicture,
+            learningMethod: item.learningMethod,
         });
     }
     return results;

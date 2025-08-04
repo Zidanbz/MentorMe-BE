@@ -2,7 +2,7 @@ const {getProjectById} = require("../../repo/ProjectRepo");
 const {getMentorByProject} = require("../../repo/MentorRepo");
 const APIResponse = require("../../DTO/response/APIResponse");
 const HttpStatus = require("../../util/HttpStatus")
-const {getFileMetadata} = require("../../config/BusboyConfig")
+const { generatePublicUrl} = require("../../config/BusboyConfig")
 
 function isEmptyProjectSelected(dataProject){
     if (dataProject === undefined || dataProject === null) {
@@ -15,7 +15,7 @@ async function getDescriptionInLearningPath(req){
         const dataProject = await getProjectById(req.params.id);
         isEmptyProjectSelected(dataProject.ID);
         const dataMentor = await getMentorByProject(dataProject.mentor);
-        const file = await getFileMetadata(dataMentor.picture);
+        const file = generatePublicUrl(dataMentor.picture);
         const data = {
             "ID": dataProject.ID,
             "info": dataProject.info,
@@ -23,8 +23,8 @@ async function getDescriptionInLearningPath(req){
             "fullName": dataMentor.fullName,
             "about": dataMentor.about,
             "linkVideo": dataProject.linkVideo,
-            "student": 50,
             "price": dataProject.price,
+            "learningMethod": dataProject.learningMethod,
         }
         return new APIResponse(
             HttpStatus.OK.message,
