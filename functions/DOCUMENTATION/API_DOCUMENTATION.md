@@ -631,7 +631,7 @@ Semua response menggunakan format standar:
 **Description:** Mendapatkan aktivitas untuk laporan
 **Authorization:** `MENTOR`, `ADMIN`
 
-**Parameters:**
+**Parameters:** a
 
 - `id`: Activity ID
 
