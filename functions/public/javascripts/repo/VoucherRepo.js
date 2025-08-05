@@ -101,10 +101,70 @@ async function updateVoucher(id, data) {
     }
 }
 
+async function getVoucherByCode(voucherCode) {
+    try {
+        const docRef = await db.collection("vouchers")
+            .where("voucherCode", "==", voucherCode)
+            .where("status", "==", true)
+            .limit(1)
+            .get();
+
+        if (docRef.empty) {
+            return null;
+        }
+
+        const voucherDoc = docRef.docs[0];
+        return {
+            id: voucherDoc.id,
+            ...voucherDoc.data(),
+        };
+    }catch (error) {
+        console.error("Error getting voucher by code:", error);
+        throw new Error(`Error getting voucher by code: ${error.message}`);
+    }
+}
+
+async function updateVoucherClaimCount(voucherId, newClaimCount) {
+    try {
+        const docRef = await db.collection('vouchers').where("ID", "==", voucherId).get();
+
+        if (docRef.empty) {
+            throw new Error(`Voucher with ID ${voucherId} not found`);
+        }
+
+        const voucherDoc = docRef.docs[0];
+        await db.collection('vouchers').doc(voucherDoc.id).update({
+            currentClaims: newClaimCount,
+        });
+
+        return true;
+    }catch (error) {
+        console.error("Error updating voucher claim count:", error);
+        throw new Error(`Error updating voucher claim count: ${error.message}`);
+    }
+}
+
+async function checkVoucherCodeExists(voucherCode) {
+    try {
+        const docRef = await db.collection("vouchers")
+            .where("voucherCode", "==", voucherCode)
+            .limit(1)
+            .get();
+
+        return !docRef.empty;
+    }catch (error) {
+        console.error("Error checking voucher code exists:", error);
+        throw new Error(`Error checking voucher code: ${error.message}`);
+    }
+}
+
 module.exports = {
     createNewVoucher,
     getVoucherActive,
     deleteVoucher,
     updateVoucher,
     getVoucherById,
+    getVoucherByCode,
+    updateVoucherClaimCount,
+    checkVoucherCodeExists,
 }

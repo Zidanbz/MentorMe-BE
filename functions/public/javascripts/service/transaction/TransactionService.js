@@ -7,7 +7,8 @@ const axios = require("axios");
 const {getProjectById} = require("../../repo/ProjectRepo");
 const APIResponse = require("../../DTO/response/APIResponse")
 const HttpStatus = require("../../util/HttpStatus");
-const {getVoucherById} = require("../../repo/VoucherRepo")
+const {getVoucherById} = require("../../repo/VoucherRepo");
+const {getUserVoucherByVoucherId, markVoucherAsUsed} = require("../../repo/UserVoucherRepo");
 // const { v4: uuidv4 } = require('uuid');
 
 
@@ -30,11 +31,24 @@ async function dataTransaction(req){
         let price;
         let name;
         if (transactional.voucher != null){
+            // Check if user has claimed this voucher and it's not used
+            const userVoucher = await getUserVoucherByVoucherId(transactional.email, transactional.voucher);
+            if (!userVoucher) {
+                throw new Error("Voucher not found in your claimed vouchers or already used");
+            }
+
             const voucher = await getVoucherById(transactional.voucher);
+            if (!voucher || voucher.length === 0) {
+                throw new Error("Voucher not found");
+            }
+
             let discount;
             discount = (voucher[0].piece / 100) * transactional.price;
             discount = Math.min(discount, transactional.price);
             price = Number(transactional.price - discount);
+
+            // Mark voucher as used after successful payment calculation
+            await markVoucherAsUsed(transactional.email, transactional.voucher);
         }else {
             price = Number(transactional.price);
         }

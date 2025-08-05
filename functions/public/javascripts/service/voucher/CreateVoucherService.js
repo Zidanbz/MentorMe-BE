@@ -27,7 +27,7 @@ function checkDate(startTimeOffset, durationOffset) {
 }
 
 function mapVoucherData(request) {
-    const { startTime, endTime, name, piece, info } = request;
+    const { startTime, endTime, name, piece, info, voucherCode, maxClaims } = request;
     const { startDate, durationDate } = checkDate(startTime, endTime);
 
     return new Voucher(
@@ -38,6 +38,9 @@ function mapVoucherData(request) {
         durationDate,
         true, // Active by default
         info,
+        voucherCode || null, // Kode voucher opsional
+        maxClaims || null, // Batas maksimal claim opsional
+        0, // Current claims dimulai dari 0
     );
 }
 
