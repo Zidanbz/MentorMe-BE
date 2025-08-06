@@ -7,6 +7,7 @@ const {authorizeRole} = require("../public/javascripts/config/SecurityConfig");
 const {acceptedMentors} = require("../public/javascripts/service/user/AccptedMentor");
 const UserService = require("../public/javascripts/service/user/UserService");
 const MentorService = require("../public/javascripts/service/user/MentorService");
+const {getAllMentorsService} = require("../public/javascripts/service/user/GetAllMentorsService");
 
 const user = {
   username: 'admin',
@@ -66,6 +67,11 @@ router.get('/api/profile/mentor', authorizeRole("MENTOR"),
         const object = new MentorService();
         const response = await object.getProfile(req);
         res.send(response);
+    });
+
+router.get('/api/mentors', authorizeRole("USER", "MENTOR", "ADMIN"),
+    async function(req, res, next) {
+        res.send(await getAllMentorsService());
     });
 
 

@@ -23,6 +23,7 @@ const topupRouter = require("./routes/TopUpRoutes");
 const consultationRouter = require("./routes/ConsultationRoutes");
 const notifRouter = require("./routes/NotifRouter");
 const chat = require("./routes/ChatRouter");
+const surveyRouter = require("./routes/SurveyRouter");
 const cors = require("cors");
 const app = express();
 
@@ -60,6 +61,7 @@ app.use("/", topupRouter);
 app.use("/", consultationRouter);
 app.use("/", notifRouter);
 app.use("/", chat);
+app.use("/", surveyRouter);
 // Membuat server HTTP manual
 // const server = http.createServer(app);
 //

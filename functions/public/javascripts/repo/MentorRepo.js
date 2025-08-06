@@ -228,6 +228,25 @@ async function updateBalance(email, newCoinBalance, newMoneyBalance) {
   }
 }
 
+async function getAllMentors() {
+  try {
+    const docRef = await db
+      .collection("mentor")
+      .get();
+
+    if (docRef.empty) {
+      return [];
+    }
+
+    return docRef.docs.map(doc => ({
+      ...doc.data(),
+      id: doc.id,
+    }));
+  }catch (error) {
+    throw new Error(error.message);
+  }
+}
+
 module.exports = {
   createNewMentor,
   getMentorByProject,
@@ -240,4 +259,5 @@ module.exports = {
   getMentorProfile,
   addEarningsToMentor,
   updateBalance,
+  getAllMentors,
 };
