@@ -11,13 +11,13 @@ router.post('/api/syllabus/new/:id', authorizeRole("MENTOR"),
     res.send(await createNewSyllabus(req));
 });
 
-router.get('/api/syllabus/:id', authorizeRole("MENTOR"),
+router.get('/api/syllabus/:id', authorizeRole("MENTOR", "ADMIN"),
     async function(req,
                    res, next) {
         res.send(await getSyllabusByProjects(req));
 });
 
-router.get('/api/syllabus/detail/:id', authorizeRole("MENTOR"),
+router.get('/api/syllabus/detail/:id', authorizeRole("MENTOR", "ADMIN"),
     async function(req,
                    res, next) {
         res.send(await getDetailSyllabus(req));
