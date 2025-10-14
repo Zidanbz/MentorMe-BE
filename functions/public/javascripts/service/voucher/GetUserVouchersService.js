@@ -23,7 +23,7 @@ async function enrichUserVouchersWithVoucherData(userVouchers) {
                     claimedAt: userVoucher.claimedAt,
                     isUsed: userVoucher.isUsed,
                     usedAt: userVoucher.usedAt,
-                    status: voucher.status,
+                    status: userVoucher.status,
                 });
             }
         }catch (error) {
@@ -38,9 +38,9 @@ async function enrichUserVouchersWithVoucherData(userVouchers) {
 async function getUserVouchers(req) {
     try {
         const user = await getUserByUid(req);
-        const userId = user.email;
+        const userEmail = user.email;
 
-        const userVouchers = await getUserVouchersByUserId(userId);
+        const userVouchers = await getUserVouchersByUserId(userEmail);
         const enrichedVouchers = await enrichUserVouchersWithVoucherData(userVouchers);
 
         return new APIResponse(
@@ -67,13 +67,37 @@ async function getAvailableUserVouchersForPayment(req) {
         const availableUserVouchers = await getAvailableUserVouchers(userId);
         const enrichedVouchers = await enrichUserVouchersWithVoucherData(availableUserVouchers);
 
-        // Filter only active and not expired vouchers
+        // Filter only active and not expired vouchers.
+        // If no dateEnd provided or parse fails, treat as valid (no expiry).
         const currentTime = Date.now();
         const validVouchers = enrichedVouchers.filter(voucher => {
-            if (!voucher.status)return false;
+            // Treat missing status as available; exclude only USED or EXPIRED
+            const st = voucher.status;
+            if (st === 'USED' || st === 'EXPIRED')return false;
 
-            const dateEnd = new Date(voucher.dateEnd._seconds * 1000).getTime();
-            return currentTime <= dateEnd;
+            // If voucher has no dateEnd, consider it valid
+            if (!voucher.dateEnd)return true;
+
+            let dateEndTime;
+            try {
+                if (voucher.dateEnd._seconds) {
+                    dateEndTime = new Date(voucher.dateEnd._seconds * 1000).getTime();
+                }else if (voucher.dateEnd.toDate) {
+                    dateEndTime = voucher.dateEnd.toDate().getTime();
+                }else if (voucher.dateEnd instanceof Date) {
+                    dateEndTime = voucher.dateEnd.getTime();
+                }else {
+                    dateEndTime = new Date(voucher.dateEnd).getTime();
+                }
+
+                // If parsing failed, don't exclude the voucher
+                if (isNaN(dateEndTime))return true;
+            }catch (e) {
+                // On any parsing error, don't exclude
+                return true;
+            }
+
+            return currentTime <= dateEndTime;
         });
 
         return new APIResponse(

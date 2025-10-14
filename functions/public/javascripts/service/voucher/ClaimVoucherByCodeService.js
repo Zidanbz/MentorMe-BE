@@ -53,48 +53,54 @@ function generateVoucherCode(prefix = "SAVE") {
 /**
  * Claim voucher menggunakan kode unik
  */
+const {updateVoucherStatus} = require('../../repo/UserVoucherRepo');
+
 async function claimVoucherByCode(userEmail, voucherCode) {
     try {
+        // Check if user has already claimed any voucher (max 1 per user)
+        const {db} = require('../../config/FirebaseConfig');
+        const existingClaims = await db.collection('user_vouchers').where('userId', '==', userEmail).limit(1).get();
+        if (!existingClaims.empty) {
+            throw new Error("You can only claim one voucher per user");
+        }
+
         // 1. Validasi voucher code
         const voucher = await validateVoucherCode(voucherCode, userEmail);
 
-        // 2. Buat user voucher record
-        const userVoucher = new UserVoucher(
-            ID(), // userVoucherId
-            userEmail,
-            voucher.ID, // voucherId
-            voucher.name,
-            voucher.piece,
-            voucher.info,
-            voucher.dateStart,
-            voucher.dateEnd,
-            new Date(), // claimedAt
-            false, // isUsed
-            null, // usedAt
-            'AVAILABLE', // status
-        );
+        // 2. Buat user voucher record (gunakan plain object agar field sesuai kebutuhan sistem)
+        const userVoucherId = ID();
+        const newUserVoucher = {
+            ID: userVoucherId,
+            userId: userEmail,
+            userEmail: userEmail, // kompatibilitas query lain
+            voucherId: voucher.ID,
+            claimedAt: new Date(),
+            isUsed: false,
+            usedAt: null,
+            status: 'AVAILABLE',
+        };
 
         // 3. Simpan user voucher ke database
-        await createUserVoucher(userVoucher);
+        await createUserVoucher(newUserVoucher);
 
         // 4. Update claim count di voucher
         await updateVoucherClaimCount(voucher.ID, voucher.currentClaims + 1);
 
-        // 5. Return success response
+        // 6. Return success response
         return new APIResponse(
             HttpStatus.CREATED.code,
             null,
             {
                 message: "Voucher berhasil diklaim!",
-                voucher: {
-                    userVoucherId: userVoucher.userVoucherId,
-                    voucherId: userVoucher.voucherId,
-                    name: userVoucher.name,
-                    piece: userVoucher.piece,
-                    info: userVoucher.info,
-                    claimedAt: userVoucher.claimedAt,
-                    status: userVoucher.status,
-                },
+                    voucher: {
+                        userVoucherId: newUserVoucher.ID,
+                        voucherId: newUserVoucher.voucherId,
+                        name: voucher.name,
+                        piece: voucher.piece,
+                        info: voucher.info,
+                        claimedAt: newUserVoucher.claimedAt,
+                        status: 'CLAIMED',
+                    },
             },
             HttpStatus.CREATED.message,
         );

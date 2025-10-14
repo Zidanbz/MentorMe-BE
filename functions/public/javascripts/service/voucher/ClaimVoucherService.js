@@ -1,38 +1,10 @@
-const {getVoucherById} = require('../../repo/VoucherRepo');
-const {createUserVoucher, checkUserVoucherExists} = require('../../repo/UserVoucherRepo');
 const {getUserByUid} = require('../../util/AutenticationUtil');
-const UserVoucher = require('../../entity/UserVoucher');
-const {ID} = require('../../util/UUID');
 const APIResponse = require("../../DTO/response/APIResponse");
 const HttpStatus = require("../../util/HttpStatus");
+const {db} = require('../../config/FirebaseConfig');
+const { Timestamp } = require('firebase-admin').firestore;
 
-async function validateVoucherForClaim(voucherId, userId) {
-    // Check if voucher exists and is active
-    const voucher = await getVoucherById(voucherId);
-    if (!voucher || voucher.length === 0) {
-        throw new Error("Voucher not found");
-    }
-
-    const voucherData = voucher[0];
-    if (!voucherData.status) {
-        throw new Error("Voucher is not active");
-    }
-
-    // Check if voucher is still valid (not expired)
-    const currentTime = Date.now();
-    const dateEnd = new Date(voucherData.dateEnd._seconds * 1000).getTime();
-    if (currentTime > dateEnd) {
-        throw new Error("Voucher has expired");
-    }
-
-    // Check if user already claimed this voucher
-    const alreadyClaimed = await checkUserVoucherExists(userId, voucherId);
-    if (alreadyClaimed) {
-        throw new Error("You have already claimed this voucher");
-    }
-
-    return voucherData;
-}
+const {updateVoucherStatus} = require('../../repo/UserVoucherRepo');
 
 async function claimVoucher(req) {
     try {
@@ -40,36 +12,164 @@ async function claimVoucher(req) {
         const voucherId = req.params.voucherId;
         const userId = user.email; // Using email as userId
 
-        // Validate voucher for claim
-        const voucherData = await validateVoucherForClaim(voucherId, userId);
+        // Check if voucher requires code or not
+        let voucherSnapshot = await db.collection('vouchers').doc(voucherId).get();
+        if (!voucherSnapshot.exists) {
+            const vouchersQuery = await db.collection('vouchers').get();
+            voucherSnapshot = vouchersQuery.docs.find(doc => doc.id.toLowerCase() === voucherId.toLowerCase());
+            if (!voucherSnapshot) {
+                throw new Error("Voucher tidak ditemukan");
+            }
+        }
+        const voucherData = voucherSnapshot.data();
 
-        // Create user voucher record
-        const userVoucher = new UserVoucher(
-            ID(),
-            userId,
-            voucherId,
-            new Date(),
-            false,
-            null,
-        );
+        // If voucher has no voucherCode (admin-created), allow multiple claims per user for different vouchers
+        if (voucherData.voucherCode == null) {
+            // Check if user already claimed this voucher
+            const userVoucherDocId = `${userId}_${voucherId}`;
+            const userVoucherRef = db.collection('user_vouchers').doc(userVoucherDocId);
+            const userVoucherSnapshot = await userVoucherRef.get();
 
-        await createUserVoucher(userVoucher);
+            if (userVoucherSnapshot.exists) {
+                throw new Error("Voucher sudah pernah diklaim");
+            }
 
-        return new APIResponse(
-            HttpStatus.CREATED.code,
-            null,
-            {
-                message: "Voucher claimed successfully",
-                voucher: {
-                    ID: voucherData.ID,
+            // Check voucher status and expiry
+            const currentTime = Date.now();
+            const dateEnd = voucherData.dateEnd._seconds * 1000;
+            if (currentTime > dateEnd) {
+                throw new Error("Voucher sudah expired");
+            }
+            if (!voucherData.status) {
+                throw new Error("Voucher tidak aktif");
+            }
+            if (voucherData.maxClaims !== null && voucherData.currentClaims >= voucherData.maxClaims) {
+                throw new Error("Voucher sudah mencapai batas maksimal penggunaan");
+            }
+
+            // Use Firestore transaction to claim voucher
+            const result = await db.runTransaction(async transaction => {
+                transaction.set(userVoucherRef, {
+                    ID: userVoucherDocId,
+                    userId: userId,
+                    voucherId: voucherId,
                     name: voucherData.name,
                     piece: voucherData.piece,
                     info: voucherData.info,
-                    claimedAt: userVoucher.claimedAt,
+                    dateStart: voucherData.dateStart,
+                    dateEnd: voucherData.dateEnd,
+                    claimedAt: new Date(),
+                    isUsed: false,
+                    usedAt: null,
+                    status: 'AVAILABLE',
+                });
+
+                const voucherRef = db.collection('vouchers').doc(voucherId);
+                transaction.update(voucherRef, {
+                    currentClaims: voucherData.currentClaims + 1,
+                });
+
+                return {
+                    ID: userVoucherDocId,
+                    userId: userId,
+                    voucherId: voucherId,
+                    name: voucherData.name,
+                    piece: voucherData.piece,
+                    info: voucherData.info,
+                    dateStart: voucherData.dateStart,
+                    dateEnd: voucherData.dateEnd,
+                    claimedAt: new Date(),
+                    isUsed: false,
+                    usedAt: null,
+                    status: 'AVAILABLE',
+                };
+            });
+
+            return new APIResponse(
+                HttpStatus.CREATED.code,
+                null,
+                {
+                    message: "Voucher berhasil diklaim!",
+                    voucher: result,
                 },
-            },
-            HttpStatus.CREATED.message,
-        );
+                HttpStatus.CREATED.message,
+            );
+        }else {
+            // Voucher requires code, enforce one voucher per user
+            const existingClaims = await db.collection('user_vouchers').where('userId', '==', userId).limit(1).get();
+            if (!existingClaims.empty) {
+                throw new Error("You can only claim one voucher per user");
+            }
+
+            // Use Firestore transaction to ensure atomic check and create
+            const result = await db.runTransaction(async transaction => {
+                const userVoucherDocId = `${userId}_${voucherId}`;
+                const userVoucherRef = db.collection('user_vouchers').doc(userVoucherDocId);
+                const userVoucherSnapshot = await transaction.get(userVoucherRef);
+
+                if (userVoucherSnapshot.exists) {
+                    throw new Error("Voucher sudah pernah diklaim");
+                }
+
+                // Check voucher status and expiry
+                const currentTime = Date.now();
+                const dateEnd = voucherData.dateEnd._seconds * 1000;
+                if (currentTime > dateEnd) {
+                    throw new Error("Voucher sudah expired");
+                }
+                if (!voucherData.status) {
+                    throw new Error("Voucher tidak aktif");
+                }
+                if (voucherData.maxClaims !== null && voucherData.currentClaims >= voucherData.maxClaims) {
+                    throw new Error("Voucher sudah mencapai batas maksimal penggunaan");
+                }
+
+                transaction.set(userVoucherRef, {
+                    ID: userVoucherDocId,
+                    userId: userId,
+                    voucherId: voucherId,
+                    name: voucherData.name,
+                    piece: voucherData.piece,
+                    info: voucherData.info,
+                    dateStart: voucherData.dateStart,
+                    dateEnd: voucherData.dateEnd,
+                    claimedAt: new Date(),
+                    isUsed: false,
+                    usedAt: null,
+                    status: 'AVAILABLE',
+                });
+
+                const voucherRef = db.collection('vouchers').doc(voucherId);
+                transaction.update(voucherRef, {
+                    currentClaims: voucherData.currentClaims + 1,
+                });
+
+                return {
+                    ID: userVoucherDocId,
+                    userId: userId,
+                    voucherId: voucherId,
+                    name: voucherData.name,
+                    piece: voucherData.piece,
+                    info: voucherData.info,
+                    dateStart: voucherData.dateStart,
+                    dateEnd: voucherData.dateEnd,
+                    claimedAt: new Date(),
+                    isUsed: false,
+                    usedAt: null,
+                    status: 'AVAILABLE',
+                };
+            });
+
+            return new APIResponse(
+                HttpStatus.CREATED.code,
+                null,
+                {
+                    message: "Voucher berhasil diklaim!",
+                    voucher: result,
+                },
+                HttpStatus.CREATED.message,
+            );
+        }
     }catch (error) {
         return new APIResponse(
             HttpStatus.BAD_REQUEST.code,

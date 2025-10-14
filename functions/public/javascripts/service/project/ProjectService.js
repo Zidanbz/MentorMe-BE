@@ -1,6 +1,6 @@
 const APIResponse = require("../../DTO/response/APIResponse");
 const HttpStatus = require("../../util/HttpStatus");
-const { getUsersByEmail, getUsersByEmails } = require("../../repo/UserRepo");
+const { getUsersByEmail } = require("../../repo/UserRepo");
 const {
   getProjectsByMentor,
   getProjectReject,
@@ -10,38 +10,22 @@ const { getUserByUid } = require("../../util/AutenticationUtil");
 const { generatePublicUrl } = require("../../config/BusboyConfig");
 
 class ProjectService {
-  // OPTIMASI: Menggunakan batch query untuk menghilangkan N+1 problem
   async transformData(listProject, listLearning) {
-    if (!listProject || listProject.length === 0) {
-      return [];
-    }
-
-    // Ambil semua unique mentor emails
-    const mentorEmails = [...new Set(listProject.map(item => item.mentor))];
-
-    // Batch query untuk semua mentors sekaligus
-    const mentors = await getUsersByEmails(mentorEmails);
-
-    // Buat map untuk lookup cepat
-    const mentorMap = new Map(mentors.map(mentor => [mentor.email, mentor]));
-
-    // Transform data tanpa loop query
-    const results = listProject.map(item => {
+    const results = [];
+    for (const item of listProject) {
       const filePicture = generatePublicUrl(item.picture);
-      const mentor = mentorMap.get(item.mentor);
-
-      return {
+      const mentor = await getUsersByEmail(item.mentor);
+      results.push({
         ID: item.ID,
         materialName: item.materialName,
         student: 0,
         price: item.price,
         picture: filePicture,
-        mentor: mentor ? mentor.fullName : "Unknown Mentor",
+        mentor: mentor[0].fullName,
         status: item.status,
         learningMethod: item.learningMethod,
-      };
-    });
-
+      });
+    }
     return results;
   }
 
@@ -65,7 +49,6 @@ class ProjectService {
     }
   }
 
-  // fungsi Utama
   async getLearningAccepted(req) {
     try {
       const list = await this.extractProject(req);
@@ -103,7 +86,6 @@ class ProjectService {
     }
   }
 
-  // Fungsi Utama
   async getProjectRejected() {
     try {
       const list = await this.extractProjectRejected();
@@ -125,25 +107,26 @@ class ProjectService {
   }
 
   async mappingResponseToProjectPendingByMentor(mentor) {
-    const data = [];
     try {
       const list = await getProjectPending();
-      for (const item of list) {
-        if (item.mentor == mentor) {
-          const filePicture = generatePublicUrl(item.picture);
-          const user = await getUsersByEmail(item.mentor);
-          const fullName = user.map(users => users.fullName)[0];
-          data.push({
-            ID: item.ID,
-            materialName: item.materialName,
-            fullName: fullName,
-            picture: filePicture,
-            student: 0,
-            price: item.price,
-            status: item.status,
-            learningMethod: item.learningMethod,
-          });
-        }
+
+      const mentorProjects = list.filter(item => item.mentor == mentor);
+
+      const data = [];
+      for (const item of mentorProjects) {
+        const filePicture = generatePublicUrl(item.picture);
+        const user = await getUsersByEmail(item.mentor);
+        const fullName = user.map(users => users.fullName)[0];
+        data.push({
+          ID: item.ID,
+          materialName: item.materialName,
+          fullName: fullName,
+          picture: filePicture,
+          student: 0,
+          price: item.price,
+          status: item.status,
+          learningMethod: item.learningMethod,
+        });
       }
       return data;
     }catch (error) {
@@ -157,9 +140,6 @@ class ProjectService {
       const data = await this.mappingResponseToProjectPendingByMentor(
         user.email,
       );
-      // if (data == null || data.length == 0) {
-      //     data = "Tidak ada project yang di pending"
-      // }
       return new APIResponse(
         HttpStatus.OK.code,
         null,
@@ -195,7 +175,6 @@ class ProjectService {
     }
   }
 
-  // Fungsi Utama
   async getProjectRejectedForMentor(req) {
     try {
       const user = await getUserByUid(req);

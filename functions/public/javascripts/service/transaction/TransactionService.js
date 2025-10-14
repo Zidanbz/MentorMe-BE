@@ -20,7 +20,7 @@ async function mapping(req, idProject, price){
         idProject,
         "pending",
         price,
-        req.body.ID,
+        req.body.voucherId,
     );
 }
 
@@ -31,15 +31,18 @@ async function dataTransaction(req){
         let price;
         let name;
         if (transactional.voucher != null){
-            // Check if user has claimed this voucher and it's not used
-            const userVoucher = await getUserVoucherByVoucherId(transactional.email, transactional.voucher);
-            if (!userVoucher) {
-                throw new Error("Voucher not found in your claimed vouchers or already used");
-            }
-
             const voucher = await getVoucherById(transactional.voucher);
             if (!voucher || voucher.length === 0) {
                 throw new Error("Voucher not found");
+            }
+
+            // If voucherCode is null (admin voucher), skip userVoucher check
+            if (voucher[0].voucherCode != null) {
+                // Check if user has claimed this voucher and it's not used
+                const userVoucher = await getUserVoucherByVoucherId(transactional.email, transactional.voucher);
+                if (!userVoucher) {
+                    throw new Error("Voucher not found in your claimed vouchers or already used");
+                }
             }
 
             let discount;
@@ -47,8 +50,8 @@ async function dataTransaction(req){
             discount = Math.min(discount, transactional.price);
             price = Number(transactional.price - discount);
 
-            // Mark voucher as used after successful payment calculation
-            await markVoucherAsUsed(transactional.email, transactional.voucher);
+            // Do not mark voucher as used here, mark it only after payment is completed successfully
+            // await markVoucherAsUsed(transactional.email, transactional.voucher);
         }else {
             price = Number(transactional.price);
         }

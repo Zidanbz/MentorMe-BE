@@ -85,6 +85,18 @@ async function checkStatus(req) {
                     return;
                 }
 
+                // Tandai voucher sebagai used setelah pembayaran berhasil
+                if (transaction[0].voucher) {
+                    const {updateVoucherStatusService} = require('../voucher/UpdateVoucherStatusService');
+                    await updateVoucherStatusService({
+                        body: {
+                            voucherId: transaction[0].voucher,
+                            status: 'USED',
+                        },
+                        user: { email: transaction[0].email },
+                    });
+                }
+
                 // Mencegah duplikasi data learning jika notifikasi datang berkali-kali
                 const existingLearning = await getLearningByEmailAndProject(transaction[0].email, transaction[0].course);
                 if (existingLearning && existingLearning.length > 0) {

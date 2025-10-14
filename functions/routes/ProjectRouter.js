@@ -50,7 +50,7 @@ router.put('/api/project/accepted/:id', authorizeRole("ADMIN"),
 
 router.get('/api/project/all',
     async function(req, res, next) {
-    res.send(await getAllProjectService());
+    res.send(await getAllProjectService(req));
     });
 
 router.get('/api/project/accepted', authorizeRole("MENTOR", "MENTOR"),

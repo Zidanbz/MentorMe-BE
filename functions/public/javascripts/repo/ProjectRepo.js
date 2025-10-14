@@ -197,6 +197,52 @@ async function getAllProject(){
     }
 }
 
+// OPTIMASI: Add paginated version untuk performa yang lebih baik
+async function getAllProjectPaginated(limit = 50, offset = 0, statusFilter = null, sortBy = 'createdAt', sortOrder = 'desc'){
+    try {
+        let query = db.collection("project");
+
+        // Add status filter if provided
+        if (statusFilter) {
+            query = query.where("status", "==", statusFilter);
+        }
+
+        // Add sorting
+        if (sortBy === 'createdAt') {
+            query = query.orderBy("createdAt", sortOrder === 'desc' ? 'desc' : 'asc');
+        }else if (sortBy === 'status') {
+            query = query.orderBy("status", sortOrder === 'desc' ? 'desc' : 'asc');
+        }
+
+        // Add limit and offset for pagination
+        query = query.limit(limit);
+
+        if (offset > 0) {
+            // For offset, we need to get the document at offset position
+            // This is a simplified approach - in production, consider using cursor-based pagination
+            const offsetQuery = query.limit(offset);
+            const offsetSnapshot = await offsetQuery.get();
+
+            if (!offsetSnapshot.empty) {
+                const lastDoc = offsetSnapshot.docs[offsetSnapshot.docs.length - 1];
+                query = query.startAfter(lastDoc);
+            }
+        }
+
+        const docRef = await query.get();
+
+        return {
+            data: docRef.docs.map(doc => ({
+                ...doc.data(),
+            })),
+            total: docRef.size, // This is approximate, for exact count use separate query
+            hasMore: docRef.size === limit,
+        };
+    }catch (error){
+        throw new Error(error.message);
+    }
+}
+
 async function getProjectReject(){
     try {
         const docRef = await
@@ -225,5 +271,6 @@ module.exports = {
     getProjectPending,
     updateProjectAccpted,
     getAllProject,
+    getAllProjectPaginated,
     getProjectReject,
 };

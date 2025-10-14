@@ -1,7 +1,7 @@
 const {createNewVoucher, getVoucherActive} = require('../../repo/VoucherRepo');
 const APIResponse = require("../../DTO/response/APIResponse")
 const HttpStatus = require("../../util/HttpStatus");
-const Voucher = require("../../entity/Voucher")
+const { Timestamp } = require('firebase-admin').firestore;
 const {ID} = require("../../util/UUID")
 
 function calculateDate(baseTime, offsetDays) {
@@ -30,18 +30,18 @@ function mapVoucherData(request) {
     const { startTime, endTime, name, piece, info, voucherCode, maxClaims } = request;
     const { startDate, durationDate } = checkDate(startTime, endTime);
 
-    return new Voucher(
-        ID(),
+    return {
+        ID: ID(),
         name,
         piece,
-        startDate,
-        durationDate,
-        true, // Active by default
+        dateStart: Timestamp.fromDate(startDate),
+        dateEnd: Timestamp.fromDate(durationDate),
+        status: true, // Active by default
         info,
-        voucherCode || null, // Kode voucher opsional
-        maxClaims || null, // Batas maksimal claim opsional
-        0, // Current claims dimulai dari 0
-    );
+        voucherCode: voucherCode || null, // Kode voucher opsional
+        maxClaims: maxClaims || null, // Batas maksimal claim opsional
+        currentClaims: 0, // Current claims dimulai dari 0
+    };
 }
 
 function formatVoucherResponse(vouchers) {

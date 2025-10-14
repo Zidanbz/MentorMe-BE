@@ -1,7 +1,7 @@
 const {updateVoucher, getVoucherActive} = require('../../repo/VoucherRepo');
 const APIResponse = require("../../DTO/response/APIResponse")
 const HttpStatus = require("../../util/HttpStatus");
-const Voucher = require("../../entity/Voucher")
+const { Timestamp } = require('firebase-admin').firestore;
 const {
     checkDate,
     formatVoucherResponse,
@@ -10,15 +10,15 @@ const {
 function mapVoucherData(request, id) {
     const { startTime, endTime, name, piece, info } = request;
     const { startDate, durationDate } = checkDate(startTime, endTime);
-    return new Voucher(
-        id,
+    return {
+        ID: id,
         name,
         piece,
-        startDate,
-        durationDate,
-        true,
+        dateStart: Timestamp.fromDate(startDate),
+        dateEnd: Timestamp.fromDate(durationDate),
+        status: true,
         info,
-    );
+    };
 }
 
 async function updateVouchers(req) {
